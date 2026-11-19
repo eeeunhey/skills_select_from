@@ -1,20 +1,25 @@
-"""Reduced nightly orchestrator (PRD 20, 25.1 step 5): one worker, SQLite queue, checkpoints,
-05:00 KST deadline, quota/rate-limit waiting. All state transitions are code rules (PRD 24).
+"""Nightly orchestrator (PRD 20, 25.1 steps 5-6): SQLite queue, checkpoints, 05:00 KST deadline,
+quota/rate-limit waiting, per-job leases (RES-09). All state transitions are code rules (PRD 24).
 
-ponytail: single worker, no lease/heartbeat. A job found RUNNING at pick time is an orphan of a
-killed process and is re-run from its last committed step. Multi-worker needs leases (step 6).
+A worker only touches a job while it holds the job's lease (acquire_lease, renewed before every step,
+released on stop). A RUNNING job whose lease is free/expired/our own is an orphan of a killed worker and
+is re-run from its last committed step; one leased by another live worker is left alone.
+ponytail: the lease is renewed only between steps, so lease_ttl_s must exceed the longest step
+(case_timeout_seconds=300 < 600). Add a heartbeat thread if steps get longer.
 """
 import argparse
 import datetime as dt
 import json
+import os
 import random
 import re
+import socket
 import sys
 import time
 
 import yaml
 
-from lab import budget
+from lab import alerts, budget
 from lab.db import ROOT, connect, tx
 
 try:
@@ -139,6 +144,40 @@ def _set(conn, job_id, status, at, reason=None, next_eligible_at=None, window_en
                  " updated_at=? WHERE job_id=?", (status, iso(next_eligible_at), iso(window_end_at), iso(at), job_id))
     _event(conn, job_id, "STATUS", {"from": old, "to": status, "reason": reason, "by": by,
                                     "next_eligible_at": iso(next_eligible_at), **extra}, at)
+    if status in _ALERT_ON and old != status:
+        kind, hint = _ALERT_ON[status]
+        if status == "WAITING_QUOTA_RESET":
+            hint = f"reset at {iso(next_eligible_at)} (confirmed)" if next_eligible_at else "reset time unknown (미확인)"
+        done, total = conn.execute("SELECT SUM(status='DONE'), COUNT(*) FROM job_steps WHERE job_id=?",
+                                   (job_id,)).fetchone()
+        fp = f"{kind}:{job_id}:{status}" + (f":{iso(window_end_at)}" if kind == "ALERT-05" else "")
+        alerts.raise_alert(conn, kind, job_id, f"{job_id} -> {status}: {reason or '-'} | steps {done or 0}/{total}"
+                           f" | next: {hint}", fingerprint=fp, now=at)
+
+
+_ALERT_ON = {"WAITING_BUDGET_APPROVAL": ("ALERT-02", "edit config/budgets.yaml, then approve-budget"),
+             "WAITING_QUOTA_RESET": ("ALERT-03", None),
+             "PAUSED_WINDOW_CLOSED": ("ALERT-05", "resumes from last checkpoint in the next window"),
+             "FAILED_PERMANENT": ("ALERT-04", "repeated/permanent failure: fix cause, enqueue a new job")}
+
+
+# ---- leases (RES-09) -----------------------------------------------------------------------
+def default_worker_id():
+    return f"{socket.gethostname()}:{os.getpid()}"
+
+
+def acquire_lease(conn, job_id, owner, now, ttl_s=600):
+    """Atomic: take (or renew) the job's lease if it is free, expired, or already ours. -> bool."""
+    with tx(conn):
+        return conn.execute("UPDATE jobs SET lease_owner=?, lease_until=? WHERE job_id=? AND (lease_owner IS NULL"
+                            " OR lease_owner=? OR lease_until IS NULL OR lease_until<=?)",
+                            (owner, iso(now + dt.timedelta(seconds=ttl_s)), job_id, owner, iso(now))).rowcount == 1
+
+
+def release_lease(conn, job_id, owner):
+    with tx(conn):
+        conn.execute("UPDATE jobs SET lease_owner=NULL, lease_until=NULL WHERE job_id=? AND lease_owner=?",
+                     (job_id, owner))
 
 
 # ---- queue ---------------------------------------------------------------------------------
@@ -284,9 +323,42 @@ def _run_step(conn, job, step, executor, now, end, cfg, caps, classifier, on_usa
 
 
 def run_worker(conn, executor, clock=utcnow, classifier=None, sleep=time.sleep, max_iterations=10_000,
-               on_usage=None, cfg=None, caps=None, window_end_at=None, jitter=random.random):
-    """Single worker loop (PRD 20.6). Returns 'idle' | 'window_closed' | 'max_iterations'.
-    sleep=None -> never wait for rate-limit/quota timers (run-once)."""
+               on_usage=None, cfg=None, caps=None, window_end_at=None, jitter=random.random, worker_id=None,
+               lease_ttl_s=600):
+    """Worker loop (PRD 20.6). Returns 'idle' | 'window_closed' | 'max_iterations'.
+    sleep=None -> never wait for rate-limit/quota timers (run-once). Several workers may share one DB file;
+    a job is only worked on under its lease. Never spawns workers: runtime.max_concurrent_workers is how many
+    processes the operator may start."""
+    worker_id = worker_id or default_worker_id()
+    held = [None]
+    try:
+        return _loop(conn, executor, clock, classifier, sleep, max_iterations, on_usage, cfg, caps, window_end_at,
+                     jitter, worker_id, lease_ttl_s, held)
+    finally:  # normal stop or exception; a hard kill leaves the lease to expire
+        if held[0]:
+            release_lease(conn, held[0], worker_id)
+
+
+def _pick(conn, now, end, cfg, worker_id, ttl, held):
+    """First eligible job whose lease we get (the one we already hold first). Acquire = heartbeat."""
+    jobs = conn.execute("SELECT * FROM jobs ORDER BY created_at, job_id").fetchall()
+    for j in sorted((j for j in jobs if _eligible(j, now, end, cfg)), key=lambda j: j["job_id"] != held[0]):
+        if not acquire_lease(conn, j["job_id"], worker_id, now, ttl):
+            continue  # another live worker has it
+        job = conn.execute("SELECT * FROM jobs WHERE job_id=?", (j["job_id"],)).fetchone()  # may have moved meanwhile
+        if _eligible(job, now, end, cfg):
+            if held[0] and held[0] != job["job_id"]:
+                release_lease(conn, held[0], worker_id)
+            held[0] = job["job_id"]
+            return job
+        release_lease(conn, j["job_id"], worker_id)
+        if held[0] == j["job_id"]:
+            held[0] = None
+    return None
+
+
+def _loop(conn, executor, clock, classifier, sleep, max_iterations, on_usage, cfg, caps, window_end_at, jitter,
+          worker_id, ttl, held):
     cfg = cfg or load_runtime()
     caps = caps or budget.load_caps()
     rt = cfg["runtime"]
@@ -299,8 +371,7 @@ def run_worker(conn, executor, clock=utcnow, classifier=None, sleep=time.sleep, 
                 for j in conn.execute("SELECT job_id FROM jobs WHERE status IN ('CHECKPOINTED','RUNNING')").fetchall():
                     _set(conn, j[0], "PAUSED_WINDOW_CLOSED", now, reason="05:00 KST window closed", window_end_at=end)
             return "window_closed"
-        jobs = conn.execute("SELECT * FROM jobs ORDER BY created_at, job_id").fetchall()
-        job = next((j for j in jobs if _eligible(j, now, end, cfg)), None)
+        job = _pick(conn, now, end, cfg, worker_id, ttl, held)
         if job is None:
             wake = _next_wake(conn, now, end)
             if wake is None or sleep is None:
@@ -309,7 +380,10 @@ def run_worker(conn, executor, clock=utcnow, classifier=None, sleep=time.sleep, 
             continue
         if job["status"] == "RUNNING":
             with tx(conn):
-                _event(conn, job["job_id"], "RECOVERED_ORPHAN", {"note": "worker restarted; resume from last checkpoint"}, now)
+                _event(conn, job["job_id"], "RECOVERED_ORPHAN", {"note": "worker restarted; resume from last checkpoint",
+                                                                 "worker_id": worker_id}, now)
+                alerts.raise_alert(conn, "ALERT-04", job["job_id"], f"{job['job_id']}: RUNNING job without a live lease"
+                                   f" recovered by {worker_id}; resuming from last checkpoint", now=now)
         step = conn.execute("SELECT * FROM job_steps WHERE job_id=? AND status='PENDING' ORDER BY seq LIMIT 1",
                             (job["job_id"],)).fetchone()
         if step is None:
@@ -382,6 +456,9 @@ def status_report(conn, now=None, caps=None, cfg=None):
         lines.append(f"- {j['job_id']} [{j['status']}] steps {done or 0}/{total} | last checkpoint "
                      f"{(cp['step_id'] + ' @ ' + kst(cp['created_at'])) if cp else '-'} | next eligible "
                      f"{kst(j['next_eligible_at'])}\n    why: {why or '-'}\n    resumes: {_resume_hint(j, cfg)}")
+    pend = alerts.pending(conn)
+    lines.append(f"alerts (undelivered): {len(pend)}")
+    lines += [f"! {a['kind']} {kst(a['created_at'])} x{a['occurrences']} {redact(a['message'])}" for a in pend]
     return "\n".join(lines)
 
 
@@ -448,6 +525,7 @@ def main(argv=None):
         r = sub.add_parser(name, help="run-once: no waiting on timers; run: wait until 05:00 KST")
         r.add_argument("--executor", choices=["dry", "eval"], required=True,
                        help="dry = echo steps, no LLM; eval = real lab.evaluator runs (costs usage)")
+        r.add_argument("--worker-id", default=None, help="lease owner name (default hostname:pid)")
     for name in ("pause", "resume", "cancel", "approve-budget"):
         o = sub.add_parser(name)
         o.add_argument("job_id")
@@ -455,7 +533,9 @@ def main(argv=None):
     a = p.parse_args(argv)
     conn = connect(a.db) if a.db else connect()
     if a.cmd == "status":
+        alerts.check_token_spikes(conn)
         print(status_report(conn))
+        alerts.mark_delivered(conn, [r["alert_id"] for r in alerts.pending(conn)])  # delivery = shown here
     elif a.cmd == "enqueue-experiment":
         try:
             print(enqueue_experiment(conn, a.experiment_id, a.by))
@@ -467,7 +547,8 @@ def main(argv=None):
         if a.executor == "eval":
             from lab import ledger
             executor, classifier = eval_executor(conn), ledger.classify_error
-        print(run_worker(conn, executor, classifier=classifier, sleep=None if a.cmd == "run-once" else time.sleep))
+        print(run_worker(conn, executor, classifier=classifier, sleep=None if a.cmd == "run-once" else time.sleep,
+                         worker_id=a.worker_id))
         print(status_report(conn))
     else:
         try:

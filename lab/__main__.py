@@ -10,6 +10,8 @@ COMMANDS = {
     "ledger": ("lab.ledger", "F8: load a stream-json transcript into llm_calls"),
     "audit": ("lab.audit", "F6/M4: score selector policies on labeled/holdout tasks"),
     "runtime": ("lab.runtime", "F9: nightly worker (05:00 KST), status, pause/resume/cancel"),
+    "dashboard": ("lab.dashboard", "21.1: static ops dashboard HTML (--out reports/dashboard.html)"),
+    "api": ("lab.api", "22.3: local REST API on 127.0.0.1 (POST needs LAB_API_TOKEN)"),
 }
 
 

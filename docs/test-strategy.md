@@ -22,5 +22,6 @@ Offline unit tests never call Claude or GitHub. They use fakes, so `python -m py
 | 10, 11, 13, 18, 19 | `tests/test_usage_accounting.py`, `tests/test_evaluation.py` |
 | 15 | `tests/test_checkpoint_resume.py` |
 | 16 | `tests/test_security_gates.py` |
+| 09 | `tests/test_ops.py` (two workers on one DB file: every step runs exactly once; an expired lease is taken over, a live one is not) |
 
-Not covered (out of scope until PRD 25.1 step 6): RES-09 (multi-worker lease) and the dashboard and alert tests.
+Step 6 ops (alerts ALERT-01..06 dedup/cooldown, dashboard, REST API token gate) are also in `tests/test_ops.py`.

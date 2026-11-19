@@ -2,7 +2,7 @@
 
 What this is: **one** local worker process (`lab/runtime.py`) that works through an approved SQLite job
 queue until 05:00 Asia/Seoul, checkpointing after every step. What it is not: a dashboard, a REST API,
-multiple workers or leases (those are step 6).
+multiple workers or leases (those are step 6, see "Operations (step 6)" below).
 
 ## Goal, stated honestly (PRD 25.4)
 
@@ -97,3 +97,22 @@ Do not use `/loop`, chat sessions or cloud scheduled tasks for the nightly queue
 If a `claude -p` call has to be cut near 05:00, send **SIGINT first** (Ctrl+C, or `CTRL_C_EVENT` on Windows) so
 the current turn can finish. Use SIGTERM or kill only after a grace period. Exit code 143 (SIGTERM) means the turn
 left no result, and the step re-runs from the last committed checkpoint.
+
+## Operations (step 6)
+
+- **Leases (RES-09).** A worker only works on a job while it holds the job's lease (`jobs.lease_owner`,
+  `jobs.lease_until`, TTL 600 s). The lease is taken atomically (`BEGIN IMMEDIATE`), renewed before every step
+  and released when the worker stops. A `RUNNING` job is recovered as an orphan only if its lease is free,
+  expired or the worker's own. `--worker-id` defaults to `hostname:pid`. Several workers may share the DB, but
+  start at most `runtime.max_concurrent_workers` of them yourself; the runtime never spawns workers. The lease is
+  renewed only between steps, so no step may run longer than the TTL.
+- **Alerts (PRD 21.2)** are rows in `alerts`, deduplicated by fingerprint with a 1 h cooldown (repeats count in
+  `occurrences`): ALERT-01 soft budget, ALERT-02 `WAITING_BUDGET_APPROVAL`, ALERT-03 `WAITING_QUOTA_RESET`,
+  ALERT-04 orphan recovery or `FAILED_PERMANENT`, ALERT-05 `PAUSED_WINDOW_CLOSED`, ALERT-06 a call using more than
+  3x the median tokens of its step (`check_token_spikes`, run by `runtime status`). Delivery means
+  `python -m lab.runtime status` prints undelivered alerts and marks them delivered. Nothing is sent outside the
+  machine; that would need user approval.
+- **Dashboard:** `python -m lab dashboard --out reports/dashboard.html` writes a static HTML snapshot.
+- **API:** `python -m lab api --port 8765` binds 127.0.0.1. GET endpoints are open locally. POST
+  (`/jobs`, `/jobs/{id}/pause|resume|cancel|approve-budget`) is disabled unless `LAB_API_TOKEN` is set, and then
+  needs `Authorization: Bearer <token>`. Each action is logged in `job_events` with `by = api:<name>`.

@@ -8,6 +8,7 @@ import uuid
 
 import yaml
 
+from lab import alerts
 from lab.db import ROOT, now, tx
 
 # scope -> (usd cap key, run cap key). Unknown cost is never free: the run cap always applies.
@@ -65,6 +66,10 @@ def reserve(conn, scope, scope_key, usd=None, runs=1, job_id=None, caps=None):
             _event(conn, job_id, "ALERT-01_BUDGET_SOFT_LIMIT",
                    {"scope": scope, "scope_key": scope_key, "usd": spent_usd + (usd or 0), "usd_cap": usd_cap,
                     "runs": spent_runs + runs, "run_cap": run_cap, "ratio": soft})
+            alerts.raise_alert(conn, "ALERT-01", job_id,
+                               f"soft budget {soft:.0%} reached for {scope} {scope_key}: usd {spent_usd + (usd or 0):.4f}"
+                               f"/{usd_cap}, runs {spent_runs + runs}/{run_cap}",
+                               fingerprint=f"ALERT-01:{scope}:{scope_key}")
         return rid, None, warn
 
 

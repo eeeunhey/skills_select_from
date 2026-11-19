@@ -5,3 +5,5 @@ data/cases/
 node_modules/
 # generated wrappers contain third-party SKILL.md copies: never redistribute (PRD 10)
 candidates/
+data/*.db-shm
+data/*.db-wal
