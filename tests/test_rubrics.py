@@ -82,6 +82,10 @@ def test_tree_hash_is_deterministic_and_skips_node_modules(tmp_path):
     assert rubrics.tree_hash(tmp_path) != h1
 
 
+# version of the real rubric file under test (bumps when a frozen rubric gets a new version)
+V = yaml.safe_load((ROOT / "rubrics" / "T01.yaml").read_text(encoding="utf-8"))["rubric_version"]
+
+
 def _copy(tmp_path, case="T01"):
     p = tmp_path / f"{case}.yaml"
     p.write_text((ROOT / "rubrics" / f"{case}.yaml").read_text(encoding="utf-8"), encoding="utf-8")
@@ -92,7 +96,7 @@ def test_register_creates_rubric_and_task(conn, tmp_path):
     out = rubrics.register(conn, _copy(tmp_path), "tester")
     task = conn.execute("SELECT * FROM tasks WHERE id='T01'").fetchone()
     assert task["fixture_commit"] == out["fixture_commit"] == f"sha256:{rubrics.tree_hash(ROOT / 'fixtures' / 'react-demo')}"
-    assert task["rubric_version"] == "rubric-v1" and task["split"] == "labeled"
+    assert task["rubric_version"] == V and task["split"] == "labeled"
     assert '"task_type": "button_flow"' in task["context_json"]
     assert "View my profile" in task["prompt"]
     assert rubrics.status(conn)[0]["approved_at"] is None
@@ -101,24 +105,24 @@ def test_register_creates_rubric_and_task(conn, tmp_path):
 def test_approve_freezes_row(conn, tmp_path):
     path = _copy(tmp_path)
     rubrics.register(conn, path, "tester")
-    rubrics.approve(conn, "T01", "rubric-v1", "human-reviewer")
+    rubrics.approve(conn, "T01", V, "human-reviewer")
     with pytest.raises(sqlite3.DatabaseError, match="frozen"):
         conn.execute("UPDATE rubrics SET yaml_text='x' WHERE id='T01'")
     with pytest.raises(sqlite3.DatabaseError):
         conn.execute("DELETE FROM rubrics WHERE id='T01'")
     with pytest.raises(rubrics.RubricError, match="already approved"):
-        rubrics.approve(conn, "T01", "rubric-v1", "again")
+        rubrics.approve(conn, "T01", V, "again")
 
 
 def test_freeze_check_detects_edit(conn, tmp_path):
     path = _copy(tmp_path)
     rubrics.register(conn, path, "tester")
-    assert rubrics.freeze_check(conn, "T01", "rubric-v1", path) == "draft"
-    rubrics.approve(conn, "T01", "rubric-v1", "human-reviewer")
-    assert rubrics.freeze_check(conn, "T01", "rubric-v1", path) == "frozen-ok"
+    assert rubrics.freeze_check(conn, "T01", V, path) == "draft"
+    rubrics.approve(conn, "T01", V, "human-reviewer")
+    assert rubrics.freeze_check(conn, "T01", V, path) == "frozen-ok"
     path.write_text(path.read_text(encoding="utf-8").replace("weight: 1", "weight: 2", 1), encoding="utf-8")
     with pytest.raises(rubrics.RubricError, match="new rubric_version"):
-        rubrics.freeze_check(conn, "T01", "rubric-v1", path)
+        rubrics.freeze_check(conn, "T01", V, path)
     with pytest.raises(rubrics.RubricError, match="new rubric_version"):
         rubrics.register(conn, path, "tester")
 
