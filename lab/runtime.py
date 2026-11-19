@@ -401,15 +401,48 @@ def _dry(step):
     return {"result_ref": f"dry:{step['step_id']}", "usd": 0.0}
 
 
+EVAL_STATES = {"WAITING_QUOTA_RESET": QuotaExhausted, "WAITING_BUDGET_APPROVAL": BudgetExceeded,
+               "FAILED_PERMANENT": PermanentError}
+
+
+def eval_executor(conn):
+    """One step = the next planned run of an experiment (checkpoint after every agent run)."""
+    from lab import evaluator  # lazy: keeps runtime importable without the evaluator's deps
+
+    def run(step):
+        exp = step["payload"]["experiment_id"]
+        state = evaluator.execute(conn, exp, limit=1)
+        if state == "WAITING_RATE_LIMIT":
+            raise RecoverableError(kind="rate_limit")
+        if state in EVAL_STATES:
+            raise EVAL_STATES[state]()
+        return {"result_ref": f"eval:{exp}:{step['step_id']}", "usd": None}  # usage is in llm_calls already
+    return run
+
+
+def enqueue_experiment(conn, experiment_id, approved_by):
+    n = conn.execute("SELECT count(*) FROM eval_runs WHERE experiment_id=? AND status='PLANNED'",
+                     (experiment_id,)).fetchone()[0]
+    if not n:
+        raise ValueError(f"no PLANNED runs for {experiment_id} (plan it with python -m lab.evaluator plan)")
+    # ponytail: needs_llm=False because evaluator.execute reserves budget per run itself; avoids double reserve
+    steps = [{"step_id": f"run-{i:03d}", "needs_llm": False, "may_run_long": True,
+              "idempotency_key": f"{experiment_id}:{i}", "payload": {"experiment_id": experiment_id}} for i in range(n)]
+    return enqueue(conn, "eval_experiment", steps, approved_by, payload={"experiment_id": experiment_id})
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="python -m lab.runtime")
     p.add_argument("--db", default=None, help="SQLite path (default data/lab.db)")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("status")
+    q = sub.add_parser("enqueue-experiment", help="queue a planned experiment for the nightly worker")
+    q.add_argument("experiment_id")
+    q.add_argument("--by", required=True, help="human approving this nightly scope (PRD 24)")
     for name in ("run-once", "run"):
         r = sub.add_parser(name, help="run-once: no waiting on timers; run: wait until 05:00 KST")
-        r.add_argument("--executor", choices=["dry"], required=True,
-                       help="dry = echo steps, no LLM (real evaluator executor is wired by integration)")
+        r.add_argument("--executor", choices=["dry", "eval"], required=True,
+                       help="dry = echo steps, no LLM; eval = real lab.evaluator runs (costs usage)")
     for name in ("pause", "resume", "cancel", "approve-budget"):
         o = sub.add_parser(name)
         o.add_argument("job_id")
@@ -418,8 +451,18 @@ def main(argv=None):
     conn = connect(a.db) if a.db else connect()
     if a.cmd == "status":
         print(status_report(conn))
+    elif a.cmd == "enqueue-experiment":
+        try:
+            print(enqueue_experiment(conn, a.experiment_id, a.by))
+        except ValueError as e:
+            print(f"refused: {e}", file=sys.stderr)
+            return 1
     elif a.cmd in ("run-once", "run"):
-        print(run_worker(conn, _dry, sleep=None if a.cmd == "run-once" else time.sleep))
+        executor, classifier = _dry, None
+        if a.executor == "eval":
+            from lab import ledger
+            executor, classifier = eval_executor(conn), ledger.classify_error
+        print(run_worker(conn, executor, classifier=classifier, sleep=None if a.cmd == "run-once" else time.sleep))
         print(status_report(conn))
     else:
         try:
