@@ -33,3 +33,16 @@ def test_enqueue_requires_planned_runs():
         raise AssertionError("should refuse")
     except ValueError:
         pass
+
+
+def test_execute_refuses_when_fixture_changed_after_registration():
+    """fixture/verifier are ground truth: a change after planning must block execution (new rubric_version)."""
+    conn = db.connect(":memory:")
+    conn.execute("INSERT INTO tasks (id, prompt, fixture_commit, rubric_id, rubric_version) VALUES"
+                 " ('T01', 'p', 'sha256:stale', 'T01', 'rubric-v1')")
+    _planned(conn, "exp-f", 1)
+    try:
+        evaluator.execute(conn, "exp-f", dry_run=True, log=lambda *a: None)
+        raise AssertionError("should refuse")
+    except evaluator.Refused as e:
+        assert "fixture" in str(e)

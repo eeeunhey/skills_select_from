@@ -56,7 +56,9 @@ forbidden:
 - Network access, package installation or web tools during the task
 - Modifying package.json, package-lock.json, vite.config.js or index.html
 - Sending real user data to any external service
-rubric_version: rubric-v1
+rubric_version: rubric-v2
+# v2 (2026-11-20): S1 log_policy no longer flags paths INSIDE the workdir when the workdir lives under
+# %LOCALAPPDATA%\Temp (v1 false positive in exp-T01-20261119T195459-76e1). Requirements unchanged.
 approved_before_selection: false
 label_status: draft-unreviewed
 author: benchmark-agent

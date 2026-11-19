@@ -330,6 +330,12 @@ def execute(conn, experiment_id, engine="claude_p", dry_run=False, operator_revi
     rows = sorted(rows, key=lambda r: (r["status"] != "PLANNED", _notes(r).get("order", 0)))[:limit]
     cfg = load_cfg()["claude"]
     budgets = yaml.safe_load((ROOT / "config" / "budgets.yaml").read_text(encoding="utf-8"))["budgets"]
+    for tid in {r["task_id"] for r in rows}:  # fixture + verifier are ground truth: frozen with the rubric
+        t = conn.execute("SELECT fixture_commit, environment_json FROM tasks WHERE id=?", (tid,)).fetchone()
+        fx = json.loads(t["environment_json"] or "{}").get("fixture", "react-demo")
+        from lab.rubrics import tree_hash
+        if t["fixture_commit"] and t["fixture_commit"] != f"sha256:{tree_hash(ROOT / 'fixtures' / fx)}":
+            raise Refused(f"{tid}: fixture/verifier changed since the rubric was registered -> new rubric_version + approval")
     if not dry_run and rows and claude_run.version() != rows[0]["claude_code_version"]:
         raise Refused("claude --version changed since plan; re-plan (version is part of the frozen setup)")
     for row in rows:
