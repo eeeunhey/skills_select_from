@@ -1,0 +1,20 @@
+/* Design tokens: the only place raw color/size values belong. */
+:root {
+  --color-primary: #1f6feb;
+  --color-primary-text: #ffffff;
+  --color-secondary: #eef2f7;
+  --color-secondary-text: #1b2430;
+  --color-danger: #c62828;
+  --color-text: #1b2430;
+  --color-muted: #5b6675;
+  --color-surface: #ffffff;
+  --color-bg: #f6f8fa;
+  --color-border: #d0d7de;
+  --color-backdrop: rgba(0, 0, 0, 0.4);
+  --radius-md: 6px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --font-size-md: 15px;
+}

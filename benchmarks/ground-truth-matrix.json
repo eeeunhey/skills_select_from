@@ -1,0 +1,297 @@
+{
+  "T01": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T02": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T03": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R4": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R5": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R6": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T04": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "human_quality",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T05": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T06": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T07": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T08": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "R4": {
+      "type": "human_quality",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T09": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "R4": {
+      "type": "human_quality",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  },
+  "T10": {
+    "R1": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R2": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R3": {
+      "type": "functional",
+      "base": "fail",
+      "reference": "pass"
+    },
+    "R4": {
+      "type": "regression",
+      "base": "pass",
+      "reference": "pass"
+    },
+    "S1": {
+      "type": "safety",
+      "base": "unevaluated",
+      "reference": "unevaluated"
+    },
+    "S2": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
+    }
+  }
+}
