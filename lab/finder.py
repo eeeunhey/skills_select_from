@@ -90,7 +90,7 @@ def stem(w):
 
 # Korean/English negation markers: the 1-2 words right before them are excluded, not searched (sel-v2).
 # ponytail: regex heuristic, misses long-range negation; replace with an LLM task analyst if audits show it.
-NEGATION = re.compile(r"(\S+(?:\s+\S+)?)\s*(?:설치되지\s*않은|없이|말고|빼고|제외하고)|(?:without|no)\s+(\S+)")
+NEGATION = re.compile(r"(\S+(?:\s+\S+)?)\s*(?:설치되지\s*않은|없이|말고|빼고|제외하고)|\b(?:without|no)\s+(\S+)")
 
 
 def analyze(query, stack=None, tools=None, constraints=None, synonyms=None, stop=None, negation=False):
