@@ -1,0 +1,35 @@
+# PRD 22.2 runtime + claude profile (26.1). Model IDs must be full IDs, never aliases (8.3).
+runtime:
+  timezone: Asia/Seoul
+  work_until_local: "05:00"
+  stop_scheduling_new_long_steps_before_minutes: 5
+  resume_next_window: true
+  require_approval_for_external_side_effects: true
+  max_concurrent_workers: 1
+
+retry:
+  transient_max_attempts: 5
+  exponential_backoff: true
+  respect_retry_after: true
+  never_retry_on_invalid_credentials: true
+  never_bypass_provider_quota: true
+
+claude:
+  auth_profile: S                  # S = subscription login (current dev machine), K = API key. Recorded on every run.
+  min_claude_code_version: "2.1.302"
+  task_model: claude-sonnet-5-5
+  aux_model: claude-haiku-5-5
+  judge_model: claude-haiku-5-5
+  eval_runs_per_arm: 3
+  case_max_turns: 10
+  case_timeout_seconds: 300
+  permission_prompts: none
+  disable_skill_shell_execution: true
+  subscription_usage_credits: off  # profile S: verify manually in account settings (cannot be checked by code)
+  publish_reports: false           # always pass --no-publish to claude plugin eval
+
+logging:
+  provider_usage_required_if_available: true
+  estimated_breakdown_enabled: true
+  log_raw_prompts: false
+  redact_secrets: true

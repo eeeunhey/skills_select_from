@@ -1,0 +1,18 @@
+# PRD 5.1 (v1.3): Claude-native sources first; others collected but marked compatibility "unverified".
+github_repos:
+  - repo: anthropics/skills
+    priority: 1
+    claude_native: true
+  - repo: anthropics/claude-plugins-official
+    priority: 1
+    claude_native: true
+  - repo: openai/skills
+    priority: 2
+    claude_native: false
+  - repo: vercel-labs/skills
+    priority: 2
+    claude_native: false
+  - repo: microsoft/skills
+    priority: 2
+    claude_native: false
+manual: []   # user-registered links: {url: https://github.com/<owner>/<repo>/blob/<ref>/<path>/SKILL.md}
