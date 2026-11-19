@@ -3,4 +3,5 @@ __pycache__/
 data/artifacts/
 data/cases/
 node_modules/
-candidates/   # generated wrappers contain third-party SKILL.md copies: never redistribute (PRD 10)
+# generated wrappers contain third-party SKILL.md copies: never redistribute (PRD 10)
+candidates/
