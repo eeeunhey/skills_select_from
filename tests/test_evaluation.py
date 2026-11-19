@@ -229,3 +229,123 @@ def test_safety_violation_disqualifies(lab):
     ok = REQS_PASS[:1] + [{"id": "S1", "result": "pass", "verifier_kind": "log_policy"}]
     run_all(conn, exp, auto_reqs=bad, forced_reqs=ok, no_reqs=ok, auto_skill_call=True)
     assert "탈락 (필수 요구사항 위반 ['S1'])" in ev.report(conn, exp)
+
+
+# ---- review regressions -------------------------------------------------------------------------
+def fake_exec(monkeypatch, calls, out=None):
+    def fake_run_p(prompt, workdir, model, tools, art, plugin_dir=None, **kw):
+        calls.append((prompt, str(art)))
+        o = out() if out else fake_out(init(skills=("deep-research",)), result())
+        o["artifact"] = str(art)
+        return o
+    monkeypatch.setattr(claude_run, "version", lambda: "2.1.327")
+    monkeypatch.setattr(claude_run, "run_p", fake_run_p)
+    monkeypatch.setattr(claude_run, "preflight_leaks", lambda w: [])
+    monkeypatch.setattr(ev, "verify", lambda *a, **k: REQS_PASS)
+
+
+def test_env_allowlist_hides_secrets(monkeypatch, tmp_path):  # finding 1
+    for k in ("GITHUB_TOKEN", "ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "AWS_SECRET_ACCESS_KEY", "CLAUDECODE"):
+        monkeypatch.setenv(k, "secret")
+    m = claude_run.minimal_env()
+    assert "PATH" in {k.upper() for k in m} and not any("secret" == v for v in m.values())
+    s, k = claude_run.clean_env("S"), claude_run.clean_env("K")
+    assert not any(v == "secret" for v in s.values())
+    assert [x for x, v in k.items() if v == "secret"] == ["ANTHROPIC_API_KEY"]
+    seen = {}
+    monkeypatch.setattr(ev.subprocess, "run", lambda cmd, **kw: seen.update(kw))
+    ev.verify("T01", tmp_path, tmp_path / "v.json")
+    assert seen["env"] is not None and "secret" not in seen["env"].values()
+
+
+def test_flagged_file_candidate_needs_approval(lab, tmp_path):  # finding 2
+    conn, _, _ = lab
+    d = tmp_path / "src" / "bashy"
+    d.mkdir(parents=True)
+    (d / "SKILL.md").write_text("---\nname: bashy\ndescription: x\nallowed-tools: Bash\n---\nRun tests.\n", encoding="utf-8")
+    exp = mkplan(conn, f"file:{d / 'SKILL.md'}")
+    auto = rows(conn, exp, "AUTO")
+    assert {r["status"] for r in auto} == {"BLOCKED"}
+    assert json.loads(auto[0]["notes"])["state"] == "WAITING_SECURITY_APPROVAL"
+    exp2 = mkplan(conn, f"file:{d / 'SKILL.md'}", operator_reviewed=True)
+    assert {r["status"] for r in rows(conn, exp2, "AUTO")} == {"PLANNED"}
+
+
+def test_catalog_skill_without_text_does_not_crash_plan(lab, monkeypatch):  # finding 8
+    conn, _, _ = lab
+    sk = {"skill_id": "gh/x", "version_id": None, "text": None, "security_status": "quarantined", "name": "x"}
+    monkeypatch.setattr(ev, "load_skill", lambda c, s: dict(sk))
+    exp = mkplan(conn, "gh/x")
+    assert {r["status"] for r in rows(conn, exp, "AUTO")} == {"QUARANTINED"}
+    sk["security_status"] = "unreviewed"
+    with pytest.raises(ev.Refused, match="no SKILL.md text"):
+        mkplan(conn, "gh/x")
+
+
+def test_execute_uses_frozen_prompt_and_rechecks_rubric(lab, monkeypatch):  # finding 4
+    conn, b, _ = lab
+    exp = mkplan(conn, b, arms=("NO_SKILL",))
+    conn.execute("UPDATE tasks SET prompt='Delete the repo.' WHERE id='T01'")
+    calls = []
+    fake_exec(monkeypatch, calls)
+    assert ev.execute(conn, exp, limit=1, log=lambda *_: None) == "COMPLETED"
+    assert calls[0][0] == "Add a loading state to the signup button."
+    p = json.loads(rows(conn, exp)[0]["notes"])["case_prompt"]
+    with open(p, "a", encoding="utf-8") as f:
+        f.write("tampered\n")
+    with pytest.raises(ev.Refused, match="changed since plan"):
+        ev.execute(conn, exp, limit=1, log=lambda *_: None)
+    conn.execute("INSERT INTO rubrics VALUES ('T01','rubric-v9','x','h','me',?, NULL, NULL)", (now(),))
+    conn.execute("UPDATE eval_runs SET rubric_version='rubric-v9' WHERE experiment_id=?", (exp,))
+    with pytest.raises(ev.Refused, match="no longer approved"):
+        ev.execute(conn, exp, limit=1, log=lambda *_: None)
+
+
+def test_unevaluated_retry_only_for_limits_and_capped(lab, monkeypatch):  # finding 5
+    conn, b, _ = lab
+    exp = ev.plan(
+        conn, "T01", b, runs=4, arms=("NO_SKILL",), seed=7, claude_code_version="2.1.327", auth_profile="S")
+    rs = rows(conn, exp)
+    setups = [("UNEVALUATED", {"state": None}),  # verifier crash -> human
+              ("UNEVALUATED", {"state": "WAITING_RATE_LIMIT", "retries": 2}),  # retry cap reached
+              ("UNEVALUATED", {"state": "WAITING_QUOTA_RESET"}),
+              ("PLANNED", {})]
+    for r, (st, extra) in zip(rs, setups):
+        conn.execute("UPDATE eval_runs SET status=?, notes=? WHERE run_id=?",
+                     (st, json.dumps({**json.loads(r["notes"]), **extra}), r["run_id"]))
+    calls = []
+    fake_exec(monkeypatch, calls)
+    assert ev.execute(conn, exp, log=lambda *_: None) == "COMPLETED"
+    ran = [c[1] for c in calls]
+    assert len(ran) == 2 and rs[3]["run_id"] in ran[0] and rs[2]["run_id"] in ran[1]  # PLANNED first
+    after = {r["run_id"]: r for r in rows(conn, exp)}
+    assert after[rs[0]["run_id"]]["status"] == "UNEVALUATED" and after[rs[1]["run_id"]]["status"] == "UNEVALUATED"
+    assert json.loads(after[rs[2]["run_id"]]["notes"])["retries"] == 1
+
+
+def test_plugin_eval_reserves_whole_suite(lab, monkeypatch):  # finding 6
+    conn, b, _ = lab
+    exp = mkplan(conn, b)
+    seen = []
+    monkeypatch.setattr(ev, "_reserve", lambda conn, rid, **kw: seen.append(kw) or (None, "cap"))
+    assert ev.execute(conn, exp, engine="plugin_eval", operator_reviewed=True, log=lambda *_: None) == \
+        "WAITING_BUDGET_APPROVAL"
+    assert seen == [{"runs": 6, "usd_cap": "per_suite_max_usd"}]  # 3 runs x 2 arms (with/without)
+
+
+def test_prior_transcript_never_overwritten(lab, monkeypatch):  # finding 9
+    conn, b, _ = lab
+    exp = mkplan(conn, b, arms=("NO_SKILL",))
+    first = min(rows(conn, exp), key=lambda r: json.loads(r["notes"])["order"])["run_id"]
+    ev.ARTIFACTS.mkdir(parents=True)
+    (ev.ARTIFACTS / f"{first}.jsonl").write_text("paid", encoding="utf-8")  # crash: transcript, no llm_calls row
+    calls = []
+    fake_exec(monkeypatch, calls)
+    ev.execute(conn, exp, limit=1, log=lambda *_: None)
+    assert calls[0][1].endswith(f"{first}.a2.jsonl")
+    assert (ev.ARTIFACTS / f"{first}.jsonl").read_text(encoding="utf-8") == "paid"
+
+
+def test_non_ascii_skill_name_gets_fallback(tmp_path):  # finding 11
+    info = ev.wrap_candidate(SKILL, "한글스킬", tmp_path / "w")
+    assert info["skill"] == "skill" and (tmp_path / "w" / "skills" / "skill" / "SKILL.md").exists()

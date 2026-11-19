@@ -30,6 +30,9 @@ VERIFIER = "fixtures/{fixture}/verify/run.mjs"
 DEFAULT_TOOLS = ["Read", "Glob", "Grep", "Edit", "Write", "Skill"]  # identical for every arm (8.3)
 DONE = ("PASSED", "FAILED", "INVALID", "QUARANTINED", "BLOCKED")
 STOP_STATES = ("WAITING_QUOTA_RESET", "WAITING_RATE_LIMIT", "WAITING_BUDGET_APPROVAL", "FAILED_PERMANENT")
+SEC_RANK = {"quarantined": 3, "flagged": 2, "unreviewed": 1}
+RETRY_STATES = ("WAITING_RATE_LIMIT", "WAITING_QUOTA_RESET")
+MAX_RETRIES = 2
 COST_FLAG_PCT = 50  # 4.4 hypothesis value, not a standard
 
 
@@ -92,6 +95,11 @@ def frozen_case(conn, task_id):
     return d
 
 
+def _case_prompt(path):
+    """Task prompt body of a frozen prompt.md (after the front matter)."""
+    return Path(path).read_text(encoding="utf-8").split("\n---\n", 1)[1].strip("\n")
+
+
 def wrap_candidate(skill_md_text, name, out_dir, security_status=None, case_dir=None):
     """Minimal plugin wrapper: .claude-plugin/plugin.json + skills/<name>/SKILL.md (+ evals/<case>).
     Quarantined candidates (catalog status or a fresh static scan) are refused - never wrapped, never run."""
@@ -104,7 +112,7 @@ def wrap_candidate(skill_md_text, name, out_dir, security_status=None, case_dir=
         raise Refused(f"candidate {name} is quarantined (catalog={security_status}, scan={status})")
     out = Path(out_dir)
     plugin = out.name
-    name = re.sub(r"[^a-z0-9-]+", "-", name.lower()).strip("-")
+    name = re.sub(r"[^a-z0-9-]+", "-", name.lower()).strip("-") or "skill"  # non-ASCII name -> "" otherwise
     (out / ".claude-plugin").mkdir(parents=True, exist_ok=True)
     (out / ".claude-plugin" / "plugin.json").write_text(json.dumps(
         {"name": plugin, "version": "0.0.0", "description": "Skill Selection Lab candidate wrapper"}, indent=1),
@@ -163,6 +171,8 @@ def plan(conn, task_id, b_skill, c_skill=None, runs=3, arms=ARMS, model=None, ju
     seed = secrets.randbelow(2**31) if seed is None else seed
     exp = f"exp-{task_id}-{now()[:19].replace(':', '').replace('-', '')}-{secrets.token_hex(2)}"
     case_dir = frozen_case(conn, task_id)
+    case_prompt = case_dir / "prompt.md"
+    prompt_sha = hashlib.sha256(_case_prompt(case_prompt).encode("utf-8")).hexdigest()
 
     cands = []
     for role, spec in (("B", b_skill), ("C", c_skill)):
@@ -170,11 +180,18 @@ def plan(conn, task_id, b_skill, c_skill=None, runs=3, arms=ARMS, model=None, ju
             continue
         sk = load_skill(conn, spec)
         status, info = "PLANNED", {}
-        if sk["security_status"] == "flagged" and not operator_reviewed:
+        if sk["text"] is None:  # quarantined catalog skills are never fetched
+            if sk["security_status"] != "quarantined":
+                raise Refused(f"{spec}: no SKILL.md text (no current catalog version?)")
+            cands.append((role, sk, "QUARANTINED", {"refused": f"candidate {sk['name']} is quarantined (catalog)"}))
+            continue
+        from lab.scan import scan
+        eff = max((sk["security_status"], scan(sk["text"])["security_status"]), key=lambda x: SEC_RANK.get(x, 0))
+        if eff == "flagged" and not operator_reviewed:  # file: candidates included (no catalog status)
             status, info = "BLOCKED", {"state": "WAITING_SECURITY_APPROVAL"}
         else:
             try:
-                info = wrap_candidate(sk["text"], sk["name"], CANDIDATES / slug(sk["name"], spec), sk["security_status"], case_dir)
+                info = wrap_candidate(sk["text"], sk["name"], CANDIDATES / slug(sk["name"], spec), eff, case_dir)
             except Refused as e:
                 status, info = "QUARANTINED", {"refused": str(e)}
         cands.append((role, sk, status, info))
@@ -187,7 +204,7 @@ def plan(conn, task_id, b_skill, c_skill=None, runs=3, arms=ARMS, model=None, ju
     for pos, i in enumerate(order):
         arm, role, sk, status, info, n = rows[i]
         rid = f"{exp}-{arm}{'-' + role if role else ''}-{n}"
-        notes = {"order": pos, "seed": seed, **{k: v for k, v in info.items() if k != "plugin_dir"}}
+        notes = {"order": pos, "seed": seed, "case_prompt": str(case_prompt), "prompt_sha256": prompt_sha, **{k: v for k, v in info.items() if k != "plugin_dir"}}
         if info.get("plugin_dir"):
             notes["plugin_dir"] = info["plugin_dir"]
         conn.execute(
@@ -209,19 +226,19 @@ def _scope_key():
         return (dt.datetime.now(dt.timezone(dt.timedelta(hours=9))) - dt.timedelta(hours=5)).date().isoformat()
 
 
-def _reserve(conn, run_id):
+def _reserve(conn, run_id, runs=1, usd_cap="per_call_max_usd"):
     """-> (reservation_id or 'local', block_reason). Budget module when present; else run-count cap only."""
     try:
         from lab import budget
     except ImportError:
         budget = None
     if budget:
-        per_call = budget.load_caps().get("per_call_max_usd")
-        rid = budget.try_reserve(conn, "nightly_window", _scope_key(), usd=per_call, runs=1, job_id=run_id)
+        usd = budget.load_caps().get(usd_cap)
+        rid = budget.try_reserve(conn, "nightly_window", _scope_key(), usd=usd, runs=runs, job_id=run_id)
         return rid, None if rid else "budget hard limit (lab.budget)"
     cap = yaml.safe_load((ROOT / "config" / "budgets.yaml").read_text(encoding="utf-8"))["budgets"]["nightly_max_agent_runs"]
     used = conn.execute("SELECT COUNT(*) FROM eval_runs WHERE started_at >= datetime('now','-24 hours')").fetchone()[0]
-    return ("local", None) if cap is None or used < cap else (None, f"nightly_max_agent_runs={cap} reached")
+    return ("local", None) if cap is None or used + runs <= cap else (None, f"nightly_max_agent_runs={cap} reached")
 
 
 def _settle(conn, rid, usd):
@@ -241,7 +258,8 @@ def verify(task_id, workdir, out_json, fixture="react-demo", transcript=None):
     if transcript:
         cmd += ["--log", str(transcript)]
     try:
-        subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=900)
+        # minimal_env: the verifier imports agent-written code, which must not see the operator's secrets
+        subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=900, env=claude_run.minimal_env())
         return json.loads(Path(out_json).read_text(encoding="utf-8")).get("requirements")
     except (OSError, ValueError, subprocess.TimeoutExpired):
         return None
@@ -281,7 +299,7 @@ def finish_run(conn, row, out, plugin=None, skill=None, reqs=None, verify_uri=No
     iso_ok = 0 if leaks else iso_ok
     ours = [s for s in p["skill_calls"] if s and skill and s.split(":")[-1] == skill]
     trig = 1 if ours else (None if row["arm"] == "FORCED" else 0)  # FORCED: slash expansion leaves no Skill block
-    notes = {**_notes(row), "tool_uses": sorted({t["name"] for t in p["tool_uses"]}), "skill_calls": p["skill_calls"],
+    notes = {**_notes(row), "retries": _notes(row).get("retries", 0) + (row["status"] == "UNEVALUATED"), "tool_uses": sorted({t["name"] for t in p["tool_uses"]}), "skill_calls": p["skill_calls"],
              "leaks": leaks, "workdir": out.get("workdir"), "state": cls["state"], "error_code": cls["error_code"], "exit_code": out["exit_code"]}
     if cls["state"]:
         status, success, passed, total = "UNEVALUATED", None, None, None  # RES-17: limit != failure
@@ -305,7 +323,11 @@ def execute(conn, experiment_id, engine="claude_p", dry_run=False, operator_revi
         return execute_plugin_eval(conn, experiment_id, operator_reviewed, dry_run, log)
     rows = conn.execute("SELECT * FROM eval_runs WHERE experiment_id=? AND status IN ('PLANNED','UNEVALUATED')",
                         (experiment_id,)).fetchall()
-    rows = sorted(rows, key=lambda r: _notes(r).get("order", 0))[:limit]
+    # UNEVALUATED is retried only after a limit wall, at most MAX_RETRIES times (verifier crash -> human);
+    # PLANNED rows first so a retry can never starve the rest of the experiment.
+    rows = [r for r in rows if r["status"] == "PLANNED" or
+            (_notes(r).get("state") in RETRY_STATES and _notes(r).get("retries", 0) < MAX_RETRIES)]
+    rows = sorted(rows, key=lambda r: (r["status"] != "PLANNED", _notes(r).get("order", 0)))[:limit]
     cfg = load_cfg()["claude"]
     budgets = yaml.safe_load((ROOT / "config" / "budgets.yaml").read_text(encoding="utf-8"))["budgets"]
     if not dry_run and rows and claude_run.version() != rows[0]["claude_code_version"]:
@@ -315,7 +337,19 @@ def execute(conn, experiment_id, engine="claude_p", dry_run=False, operator_revi
         env = json.loads(t["environment_json"] or "{}")
         n = _notes(row)
         plugin_dir, plugin, skill = n.get("plugin_dir"), n.get("plugin"), n.get("skill")
-        prompt = t["prompt"] if row["arm"] != "FORCED" else f"/{plugin}:{skill} {t['prompt']}"
+        r = conn.execute("SELECT approved_at FROM rubrics WHERE id=? AND version=?",
+                         (t["rubric_id"], row["rubric_version"])).fetchone()
+        if not r or not r["approved_at"]:
+            raise Refused(f"rubric {t['rubric_id']}/{row['rubric_version']} no longer approved; re-plan")
+        cp = n.get("case_prompt") or CASES / f"{row['task_id']}@{row['rubric_version']}" / row["task_id"] / "prompt.md"
+        try:
+            task_prompt = _case_prompt(cp)  # the frozen prompt, never the live tasks.prompt
+        except (OSError, IndexError):
+            raise Refused(f"{row['run_id']}: frozen case prompt {cp} missing/unreadable; re-plan")
+        want = n.get("prompt_sha256") or hashlib.sha256(t["prompt"].encode("utf-8")).hexdigest()
+        if hashlib.sha256(task_prompt.encode("utf-8")).hexdigest() != want:
+            raise Refused(f"{row['run_id']}: frozen case prompt changed since plan; re-plan")
+        prompt = task_prompt if row["arm"] != "FORCED" else f"/{plugin}:{skill} {task_prompt}"
         if dry_run:
             log(f"[dry] {row['run_id']} arm={row['arm']} plugin={plugin} prompt={prompt[:60]!r}")
             continue
@@ -330,7 +364,10 @@ def execute(conn, experiment_id, engine="claude_p", dry_run=False, operator_revi
                         ignore=shutil.ignore_patterns("node_modules", ".git", "verify", "dist", "test-results",
                                                       "playwright-report"))
         attempt = ledger.next_attempt(conn, row["run_id"]) + 1
-        art = ARTIFACTS / (f"{row['run_id']}.jsonl" if attempt == 1 else f"{row['run_id']}.a{attempt}.jsonl")
+        art = lambda a: ARTIFACTS / (f"{row['run_id']}.jsonl" if a == 1 else f"{row['run_id']}.a{a}.jsonl")
+        while art(attempt).exists():  # crash before finish_run left no ledger row: never overwrite paid evidence
+            attempt += 1
+        art = art(attempt)
         out = claude_run.run_p(prompt, work, row["model_id"], env.get("allowed_tools", DEFAULT_TOOLS), art,
                                plugin_dir=plugin_dir if row["arm"] != "NO_SKILL" else None,
                                max_budget_usd=budgets.get("per_call_max_usd"), max_turns=cfg["case_max_turns"],
@@ -436,7 +473,8 @@ def execute_plugin_eval(conn, experiment_id, operator_reviewed, dry_run, log=pri
         if not operator_reviewed:
             raise Refused("plugin_eval needs --trust-plugin/--scaffold/--allow-tools: pass --i-reviewed-this-candidate "
                           "only after a human reviewed this candidate")
-        rid, why = _reserve(conn, f"{experiment_id}-{role}")
+        # n AUTO rows = runs_per_case x cases; the with/without ablation runs each of them twice
+        rid, why = _reserve(conn, f"{experiment_id}-{role}", runs=n * 2, usd_cap="per_suite_max_usd")
         if not rid:
             return "WAITING_BUDGET_APPROVAL"
         env = json.loads(conn.execute("SELECT environment_json FROM tasks WHERE id=?", (row["task_id"],)).fetchone()[0] or "{}")

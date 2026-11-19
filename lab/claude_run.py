@@ -6,7 +6,7 @@ Isolation achievable without logging out profile S (verified on 2.1.327, docs/cl
   --strict-mcp-config        -> no MCP servers unless passed
   --plugin-dir <candidate>   -> only the candidate plugin is added
   --settings {"disableSkillShellExecution": true}
-  scrubbed CLAUDE* env of the parent session, fresh temp cwd outside any repo.
+  allowlisted env (clean_env: no parent CLAUDE* session vars, no stray tokens), fresh temp cwd outside any repo.
 The leftover risk (personal ~/.claude/skills, CLAUDE.md in ancestors) is detected, not prevented:
 lab.ledger.isolation_check on the init message + preflight_leaks() below -> run INVALID.
 """
@@ -38,12 +38,27 @@ def version():
     return out.split()[0] if out else None  # "2.1.327 (Claude Code)" -> "2.1.327"
 
 
-def clean_env():
-    """Drop the parent Claude session's CLAUDE* vars (entrypoint, session id, messaging socket...).
-    Auth for profile S lives in the user config dir, so CLAUDE_CONFIG_DIR / ANTHROPIC_* are kept."""
-    keep = {"CLAUDE_CONFIG_DIR"}
-    return {k: v for k, v in os.environ.items()
-            if not (k.upper().startswith("CLAUDE") and k.upper() not in keep)}
+# Allowlist, not denylist: the agent and the verifier (which imports agent-written code under node) must never
+# inherit GITHUB_TOKEN / ANTHROPIC_* / AWS_* etc. from the operator's shell.
+SAFE_ENV = {"PATH", "PATHEXT", "SYSTEMROOT", "WINDIR", "COMSPEC", "TEMP", "TMP", "HOME", "USERPROFILE", "APPDATA",
+            "LOCALAPPDATA", "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMDATA", "NODE_PATH", "LANG", "PYTHONIOENCODING"}
+
+
+def minimal_env():
+    """Only SAFE_ENV (case-insensitive: Windows env names are)."""
+    return {k: v for k, v in os.environ.items() if k.upper() in SAFE_ENV}
+
+
+def clean_env(auth_profile=None):
+    """Env for the `claude` CLI: minimal_env() (parent-session CLAUDE* vars are thus dropped) + what auth needs.
+    Profile S authenticates from the user config dir (USERPROFILE/APPDATA, optionally CLAUDE_CONFIG_DIR);
+    profile K additionally gets ANTHROPIC_API_KEY. No other ANTHROPIC_* / tokens are passed."""
+    if auth_profile is None:
+        import yaml
+        from lab.db import ROOT
+        auth_profile = yaml.safe_load((ROOT / "config" / "runtime.yaml").read_text(encoding="utf-8"))["claude"]["auth_profile"]
+    keep = {"CLAUDE_CONFIG_DIR"} | ({"ANTHROPIC_API_KEY"} if auth_profile == "K" else set())
+    return {**minimal_env(), **{k: v for k, v in os.environ.items() if k.upper() in keep}}
 
 
 def preflight_leaks(workdir):
@@ -74,7 +89,7 @@ def run_p(prompt, workdir, model, allowed_tools, artifact_path, plugin_dir=None,
         cmd += ["--max-budget-usd", str(max_budget_usd)]
     Path(artifact_path).parent.mkdir(parents=True, exist_ok=True)
     t0 = time.monotonic()
-    with open(artifact_path, "w", encoding="utf-8") as out:
+    with open(artifact_path, "x", encoding="utf-8") as out:
         try:
             proc = subprocess.run(cmd, cwd=workdir, stdout=out, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL,
                                   text=True, encoding="utf-8", errors="replace", timeout=timeout_s, env=clean_env())
