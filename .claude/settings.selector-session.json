@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./rubrics/**)",
+      "Read(./benchmarks/**)",
+      "Read(./fixtures/**/verify/**)",
+      "Read(./reports/audit-*)",
+      "Grep(./rubrics/**)",
+      "Grep(./benchmarks/**)",
+      "Bash(* rubrics/*)",
+      "Bash(* benchmarks/*)"
+    ]
+  }
+}

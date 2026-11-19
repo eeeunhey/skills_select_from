@@ -485,13 +485,14 @@ def fetch_body(c, limit):
 
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
-    if argv and argv[0] == "approve":
+    if "approve" in argv and argv.index("approve") == next((i for i, x in enumerate(argv) if not x.startswith("-")
+                                                            and (i == 0 or argv[i - 1] != "--db")), -1):
         ap = argparse.ArgumentParser(prog="lab.selector approve")
         ap.add_argument("decision_id")
         ap.add_argument("choice", help="skill_id 또는 NO_SKILL")
         ap.add_argument("--by", required=True)
         ap.add_argument("--db", default=str(db.DB_PATH))
-        a = ap.parse_args(argv[1:])
+        a = ap.parse_args([x for i, x in enumerate(argv) if i != argv.index("approve")])  # --db before or after
         conn = db.connect(a.db)
         try:
             approve(conn, a.decision_id, a.choice, a.by)

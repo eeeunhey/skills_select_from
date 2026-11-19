@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest:*)",
+      "Bash(python -m lab:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "ask": [
+      "Bash(npm install:*)",
+      "Bash(pip install:*)",
+      "Bash(npx:*)",
+      "Bash(curl:*)",
+      "WebFetch",
+      "Bash(claude plugin eval:*)",
+      "Bash(python -m lab eval execute:*)",
+      "Bash(python -m lab.evaluator execute:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Bash(* --trust-plugin*)",
+      "Bash(* --allow-real-servers*)",
+      "Bash(* --scaffold*)"
+    ]
+  },
+  "disableSkillShellExecution": true
+}
