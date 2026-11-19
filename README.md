@@ -14,7 +14,7 @@
 | 3 | Finder(FTS5) + Selector + NO_SKILL + 근거 리포트 + 사람 승인 | 완료 |
 | 4 | Selection Audit + 정책 비교 (labeled / holdout) | 완료. [reports/audit-2026-11-19.md](reports/audit-2026-11-19.md). sel-v2는 채택하지 않음 |
 | 5 | 야간 워커 축소판 (SQLite 큐, 체크포인트, 05:00 KST 마감, 한도 대기) | 완료. RES-01·03·04·06·07·08·15·17 테스트 |
-| 6 | 대시보드, 알림, REST API, 다중 워커 | **범위 밖.** PRD 기준으로 실험량이 CLI로 감당 안 될 때 착수 |
+| 6 | 대시보드, 알림, REST API, 다중 워커 | 최소 구현. `python -m lab dashboard`(정적 HTML), ALERT-01..06 중복 제거, `python -m lab api`(127.0.0.1, POST는 `LAB_API_TOKEN` 필요), lease(RES-09) |
 
 ## 빠른 시작
 ```bash
