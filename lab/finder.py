@@ -88,16 +88,28 @@ def stem(w):
     return w
 
 
-def analyze(query, stack=None, tools=None, constraints=None):
-    """Rule-based task draft (17: the analyst never finalizes intent; a human confirms)."""
+# Korean/English negation markers: the 1-2 words right before them are excluded, not searched (sel-v2).
+# ponytail: regex heuristic, misses long-range negation; replace with an LLM task analyst if audits show it.
+NEGATION = re.compile(r"(\S+(?:\s+\S+)?)\s*(?:설치되지\s*않은|없이|말고|빼고|제외하고)|(?:without|no)\s+(\S+)")
+
+
+def analyze(query, stack=None, tools=None, constraints=None, synonyms=None, stop=None, negation=False):
+    """Rule-based task draft (17: the analyst never finalizes intent; a human confirms).
+    synonyms/stop/negation are policy knobs (selector.POLICY_V2) so audits can compare analyzers."""
     q = query.lower()
+    excluded = []
+    if negation:
+        for m in NEGATION.finditer(q):
+            excluded.append((m.group(1) or m.group(2)).strip())
+        q = NEGATION.sub(" ", q)
+    stop = STOP if stop is None else stop
     concepts, rest = [], q
-    for ko, ens in SYNONYMS.items():
+    for ko, ens in {**SYNONYMS, **(synonyms or {})}.items():
         if ko in rest:
             rest = rest.replace(ko, " ")
             if ens:
                 concepts.append({"term": ko, "expand": sorted({stem(e) for e in ens})})
-    words = [w for w in re.findall(r"[a-z0-9]+", rest) if w not in STOP]
+    words = [w for w in re.findall(r"[a-z0-9]+", rest) if w not in stop]
     for w in words:
         concepts.append({"term": w, "expand": sorted({stem(w), *(stem(e) for e in EN_SYNONYMS.get(w, []))})})
     unmapped = re.findall(r"[가-힣]{2,}", rest)
@@ -118,6 +130,7 @@ def analyze(query, stack=None, tools=None, constraints=None):
         "tools": [t.strip() for t in tools or [] if t.strip()],
         "constraints": list(constraints or []),
         "concepts": concepts,
+        "excluded_terms": excluded,
         "unmapped_ko": unmapped,
         "analysis_method": "rule-v1 (초안, 사람 확인 필요)",
     }

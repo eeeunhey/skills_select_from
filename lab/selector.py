@@ -27,6 +27,18 @@ POLICY_V1 = {
     "desc_limit": 1536,      # Claude truncates description+when_to_use in the skill listing
     "body_max": 200_000,
 }
+# sel-v2: derived ONLY from sel-v1 failures on the labeled split (lab.audit, 2026-11-19); holdout used to compare.
+# Fixes: (1) synonym gaps (L07 RETRIEVAL, L13), (2) negated terms searched as wanted (L06),
+# (3) NO_SKILL's constant total (fixed source/cost 1.0) outranking skills that pass the fit thresholds.
+# Still a hypothesis: 13 draft labels, not human-reviewed.
+POLICY_V2 = {**POLICY_V1, "policy_version": "sel-v2", "synonym_version": "syn-v2",
+             "analyzer": {"negation": True,
+                          "stop": finder.STOP - {"skill", "skills"},
+                          "synonyms": {"스킬": ["skill"], "브랜드": ["brand"], "글꼴": ["font", "typography"],
+                                       "색": ["color", "colour"], "랜딩": ["landing"], "페이지": ["page"],
+                                       "트리거": ["trigger"], "평가": ["eval", "evaluate", "benchmark"],
+                                       "만들": ["create", "build"], "디자인": ["design"]}},
+             "no_skill_rule": "threshold"}   # NO_SKILL first only when the best skill fails hold_fit/hold_score
 NO_SKILL = "NO_SKILL"
 # ponytail: platform tokens in name/path that suggest a platform-bound skill; hand list, replace with
 # metadata.compatibility once sources declare it.
@@ -294,9 +306,13 @@ def recommend(conn, task, policy=POLICY_V1, bodies=None, budget_caps=None, rubri
     ranked = sorted(detailed + [no_skill], key=key)
     best = next((s for s in ranked if s["skill_id"] != NO_SKILL), None)
     hold = (best is None or best["parts"]["task_fit"][0] < policy["hold_fit"]
-            or (best["score"] or 0) < policy["hold_score"] or ranked[0]["skill_id"] == NO_SKILL)
-    if hold:
-        ranked = [no_skill] + [s for s in ranked if s is not no_skill]
+            or (best["score"] or 0) < policy["hold_score"])
+    if policy.get("no_skill_rule", "score") == "score":
+        hold = hold or ranked[0]["skill_id"] == NO_SKILL       # sel-v1: NO_SKILL total competes directly
+    others = [s for s in ranked if s is not no_skill]
+    # sel-v2 threshold rule: NO_SKILL stays the comparison baseline right after the top skill
+    ranked = [no_skill] + others if hold else (ranked if policy.get("no_skill_rule", "score") == "score"
+                                               else others[:1] + [no_skill] + others[1:])
     for i, s in enumerate(ranked, 1):
         s["rank"] = i
         if s["skill_id"] == NO_SKILL:
@@ -337,18 +353,14 @@ def next_step(task, ranked, caps, decision, decision_id="<decision_id>"):
     if decision != "PROPOSED_NOT_VALIDATED":
         return "rubric 승인 후 다시 선정하세요 (탐색 결과는 평가에 쓰지 않음)."
     skills = [s["skill_id"] for s in ranked if s["skill_id"] != NO_SKILL][:2]
-    cmd = ["python -m lab.evaluator plan", f"--decision {decision_id}",
-           f"--task-id {task.get('task_id') or '<task_id>'}", "--arms NO_SKILL,AUTO,FORCED"]
-    cmd += [f'--candidate "{s}"' for s in skills]
+    if not skills:
+        return f"스킬 후보 없음: NO_SKILL로 진행 (승인: python -m lab.selector approve {decision_id} NO_SKILL --by <name>)"
+    cmd = ["python -m lab.evaluator plan", f"--task {task.get('task_id') or '<task_id>'}",
+           f'--b "{skills[0]}"'] + ([f'--c "{skills[1]}"'] if len(skills) > 1 else []) + ["--arms NO_SKILL,AUTO,FORCED"]
+    # ponytail: caps are not CLI flags; evaluator asks lab.budget per run (config/budgets.yaml)
     caps = caps or {}
-    if caps.get("per_call_max_usd") is not None:
-        cmd.append(f"--max-budget-usd {caps['per_call_max_usd']}")     # -> claude -p --max-budget-usd
-    if caps.get("per_suite_max_usd") is not None:
-        cmd.append(f"--max-cost-usd {caps['per_suite_max_usd']}")      # -> claude plugin eval --max-cost-usd
-    for k in ("max_turns", "timeout_seconds"):
-        if caps.get(k) is not None:
-            cmd.append(f"--{k.replace('_', '-')} {caps[k]}")
-    return " ".join(cmd) + ("" if caps else "   # 예산 상한 없음: Budget Guard 값 필요")
+    note = f"   # 예산: {caps}" if caps else "   # 예산 상한은 lab.budget이 config/budgets.yaml로 적용"
+    return f"python -m lab.selector approve {decision_id} <skill_id|NO_SKILL> --by <name> && " + " ".join(cmd) + note
 
 
 # ---------------- persistence + human approval ----------------
@@ -493,6 +505,8 @@ def main(argv=None):
     ap.add_argument("--tools", default="")
     ap.add_argument("--constraints", default="", help="예: claude.ai,skills-api")
     ap.add_argument("--task-id")
+    ap.add_argument("--policy", choices=["sel-v1", "sel-v2"], default="sel-v1",
+                    help="sel-v1 = default; sel-v2 = audit candidate (adopt only after human review)")
     ap.add_argument("--no-rubric", action="store_true", help="rubric 미승인 탐색 (EXPLORATORY)")
     ap.add_argument("--read-candidates", action="store_true")
     ap.add_argument("--json", action="store_true")
@@ -502,10 +516,12 @@ def main(argv=None):
     a = ap.parse_args(argv)
     split = lambda s: [x.strip() for x in s.split(",") if x.strip()]  # noqa: E731
     conn = db.connect(a.db)
-    task = finder.analyze(a.query, split(a.stack), split(a.tools), split(a.constraints))
+    policy = POLICY_V2 if a.policy == "sel-v2" else POLICY_V1
+    task = finder.analyze(a.query, split(a.stack), split(a.tools), split(a.constraints), **policy.get("analyzer", {}))
     if a.task_id:
         task["task_id"] = a.task_id
-    kw = dict(budget_caps=json.loads(a.caps) if a.caps else None, rubric_approved=False, exploratory=a.no_rubric)
+    kw = dict(policy=policy, budget_caps=json.loads(a.caps) if a.caps else None, rubric_approved=False,
+              exploratory=a.no_rubric)
     res = recommend(conn, task, **kw)
     if a.read_candidates and res.get("detailed_ids"):
         hits = {c["id"]: c for c in finder.find(conn, task, POLICY_V1["top_k"])["hits"]}

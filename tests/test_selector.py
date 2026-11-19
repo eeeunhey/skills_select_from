@@ -133,7 +133,7 @@ def test_unapproved_rubric_blocked(conn):
 def test_save_approve_roundtrip(conn):
     res = run(conn, "브라우저 버튼 테스트", budget_caps={"per_call_max_usd": 0.5, "per_suite_max_usd": 3})
     did = selector.save(conn, res)
-    assert did in res["next_step"] and "--max-cost-usd 3" in res["next_step"]
+    assert did in res["next_step"] and "lab.evaluator plan --task" in res["next_step"] and "per_suite_max_usd" in res["next_step"]
     rows = conn.execute("SELECT skill_id, policy_version FROM recommendations WHERE decision_id=?", (did,)).fetchall()
     assert None in [r["skill_id"] for r in rows] and rows[0]["policy_version"] == "sel-v1"
     with pytest.raises(ValueError):
