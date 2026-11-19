@@ -106,3 +106,19 @@ def test_events_are_redacted():
     rt.run_worker(conn, boom, clock=lambda: T, caps=CAPS)
     blob = " ".join(r[0] for r in conn.execute("SELECT payload_redacted FROM job_events WHERE job_id=?", (jid,)))
     assert "SECRETSECRET" not in blob and "[REDACTED]" in blob
+
+
+def test_cancel_during_step_that_then_fails_is_not_revived():
+    """review #3: a step error after an operator cancel must not overwrite CANCELLED with WAITING_*."""
+    conn = connect(":memory:")
+    jid = rt.enqueue(conn, "x", [{"needs_llm": False}] * 2, "t", clock=lambda: T)
+    calls = []
+
+    def cancel_then_429(step):
+        calls.append(step["step_id"])
+        rt.cancel(conn, jid, "operator", clock=lambda: T)
+        raise rt.RecoverableError(kind="rate_limit", retry_after=1)
+
+    rt.run_worker(conn, cancel_then_429, clock=lambda: T, caps=CAPS)
+    rt.run_worker(conn, lambda s: calls.append(s["step_id"]), clock=lambda: T + dt.timedelta(minutes=5), caps=CAPS)
+    assert conn.execute("SELECT status FROM jobs").fetchone()[0] == "CANCELLED" and calls == ["s001"]

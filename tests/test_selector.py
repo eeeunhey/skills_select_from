@@ -173,3 +173,12 @@ def test_bodies_only_used_as_keywords(conn):
 def test_fts_quoting_safe(conn):
     res = run(conn, 'test" OR name:* AND (')
     assert NO_SKILL in ids(res)
+
+
+def test_compat_only_gate_ignores_non_stack_words():
+    """review #10: 'Claude Code only' is not a 'code'-only platform restriction; 'dotnet only' still is."""
+    gate = selector.gate
+    base = {"status": "active", "scan": {}, "security_status": "unreviewed"}
+    task = {"stack": ["react"], "tools": []}
+    assert gate({**base, "metadata": {"compatibility": "Claude Code only"}}, task) is None
+    assert gate({**base, "metadata": {"compatibility": "dotnet only"}}, task)[0] == "BLOCKED"

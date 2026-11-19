@@ -28,7 +28,9 @@ def audit_task(conn, t, policy, k=20):
     rel = {sid(s) for s in t.get("relevant_skills", [])}
     neg = {sid(s) for s in t.get("hard_negatives", [])}
     found = [h["id"] for h in finder.find(conn, task, top_k=k)["hits"]]
-    res = selector.recommend(conn, task, policy=policy, rubric_approved=True)  # audit context, not an experiment
+    # full detailed ranking (not just the 3 shown, which include NO_SKILL) so "top-3" really means 3 skills
+    res = selector.recommend(conn, task, policy={**policy, "max_output": policy["max_detailed"] + 1},
+                             rubric_approved=True)  # audit context, not an experiment
     ranked = [r["skill_id"] for r in res["ranked"]]
     skills3 = [r for r in ranked if r != NO][:3]
     top1 = ranked[0]
@@ -51,7 +53,7 @@ def audit_task(conn, t, policy, k=20):
     return {"task_id": t["task_id"], "gt_ref": t.get("gt_ref"), "query": t["query"], "top1": top1,
             "verdict": res["verdict"], "correct": correct,
             "recall_at_k": (len(rel & set(found)) / len(rel)) if rel else None,
-            "precision_at_3": (len(rel & set(skills3)) / len(skills3)) if rel and skills3 else None,
+            "precision_at_3": ((len(rel & set(skills3)) / len(skills3)) if skills3 else 0.0) if rel else None,
             "top3_hit": bool(rel & set(skills3)) if rel else None,
             "no_skill_case": not rel, "failure": fail}
 

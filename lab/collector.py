@@ -221,7 +221,8 @@ def collect(conn, sources, now, fetch_tree=github_tree, fetch_raw=github_raw, sl
             continue
         info.update(status="ok", last_success_at=now)
         conn.execute("UPDATE sources SET scan_cursor=?, last_success_at=? WHERE id=?", (commit, now, src["id"]))
-        ok_repos.append(repo)
+        if not truncated:  # an incomplete listing must never mark existing skills removed/moved
+            ok_repos.append(repo)
 
     for m in sources.get("manual") or []:  # {url: https://github.com/<o>/<r>/blob/<ref>/<path>/SKILL.md}
         url = m["url"]

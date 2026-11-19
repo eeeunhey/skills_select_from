@@ -181,3 +181,16 @@ def test_manual_link_and_export(conn):
     assert r["counts"]["unchanged"] == 1
     out = export(conn)
     assert out["skills"][0]["name"] == "manual-one" and out["skills"][0]["scan"]["security_status"] == "unreviewed"
+
+
+def test_truncated_tree_never_marks_removed(conn):
+    """review #7: a truncated listing is incomplete -> no removed/moved decisions for that repo."""
+    f = Fake()
+    f.files["o/a"] = {"x/SKILL.md": skill("x"), "y/SKILL.md": skill("y")}
+    run(conn, f, 0)
+    full = f.tree
+    f.tree = lambda repo: (lambda c, b, _: (c, {k: v for k, v in b.items() if not k.startswith("y/")}, True))(*full(repo)) \
+        if repo == "o/a" else full(repo)
+    r = run(conn, f, 1)
+    assert r["counts"]["removed"] == 0 and row(conn, "github:o/a:y/SKILL.md")["status"] == "active"
+    assert any("truncated" in w for w in r["warnings"])

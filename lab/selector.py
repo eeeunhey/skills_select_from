@@ -79,7 +79,8 @@ def gate(c, task):
     compat = str(meta.get("compatibility") or "").lower()
     for m in re.finditer(r"(\w+)[- ]only|only (?:for |on |supports? )?(\w+)", compat):
         x = m.group(1) or m.group(2)
-        if task.get("stack") and x not in task["stack"]:
+        # only a known stack/platform word is a restriction ("Claude Code only" is not "code only")
+        if x in (finder.KNOWN_STACKS | PLATFORM) and task.get("stack") and x not in task["stack"]:
             return "BLOCKED", f"compatibility가 '{x}' 전용 (스택: {', '.join(task['stack'])})"
     targets = {x.lower() for x in task.get("constraints") or []} & CLAUDE_ONLY_TARGETS
     if targets and scan.get("spec_fields_only") is False:

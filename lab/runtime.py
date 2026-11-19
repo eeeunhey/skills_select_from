@@ -248,6 +248,11 @@ def _run_step(conn, job, step, executor, now, end, cfg, caps, classifier, on_usa
             budget.settle(conn, rid, err.usd)  # failed attempts are spend too (OBS-06)
         at = clock()
         with tx(conn):
+            cur = conn.execute("SELECT status FROM jobs WHERE job_id=?", (jid,)).fetchone()[0]
+            if cur != "RUNNING":  # operator cancelled/paused mid-step: never overwrite (RES-15)
+                conn.execute("INSERT INTO job_events (job_id, event_type, payload_redacted, created_at) VALUES (?,?,?,?)",
+                             (jid, "STEP_ERROR_AFTER_" + cur, redact(str(err))[:500], iso(at)))
+                return
             if isinstance(err, RecoverableError):
                 attempts += max(0, err.attempts_used - 1)
                 conn.execute("UPDATE job_steps SET attempt_count=? WHERE job_id=? AND step_id=?", (attempts, jid, sid))

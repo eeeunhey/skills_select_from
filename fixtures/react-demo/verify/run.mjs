@@ -40,18 +40,26 @@ export function prepare(dest) {
   return dest
 }
 
+// Agent-written code runs here (vite build, unit imports): give it no secrets, only what node/chrome need.
+const SAFE_ENV_KEYS = ['PATH', 'Path', 'PATHEXT', 'SystemRoot', 'SYSTEMROOT', 'WINDIR', 'COMSPEC', 'TEMP', 'TMP', 'HOME',
+  'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramData', 'LANG', 'PLAYWRIGHT_BROWSERS_PATH']
+export function safeEnv(extra = {}) {
+  const env = {}
+  for (const k of SAFE_ENV_KEYS) if (process.env[k] !== undefined) env[k] = process.env[k]
+  return { ...env, ...extra }
+}
+
 function playwrightResults(caseId, workdir, port, artifacts) {
   const report = path.join(artifacts, 'pw-report.json')
   fs.rmSync(report, { force: true })
-  const env = {
-    ...process.env,
+  const env = safeEnv({
     VERIFY_WORKDIR: workdir,
     VERIFY_PORT: String(port),
     VERIFY_REPORT: report,
     VERIFY_ARTIFACTS: artifacts,
     VERIFY_VITE: path.join(FIXTURE, 'node_modules', 'vite', 'bin', 'vite.js'),
     VERIFY_VITE_CONFIG: path.join(FIXTURE, 'vite.config.js'),
-  }
+  })
   fs.mkdirSync(path.join(artifacts, 'screenshots'), { recursive: true })
   const cli = path.join(FIXTURE, 'node_modules', '@playwright', 'test', 'cli.js')
   const p = spawnSync(process.execPath, [cli, 'test', '--config', path.join(VERIFY, 'playwright.config.mjs'), `${caseId}.spec.mjs`], {
@@ -102,7 +110,7 @@ export function verify({ caseId, workdir, log, port = 5199, artifacts }) {
     if (kind === 'browser') r = pw.results[testId] || { result: 'unevaluated', detail: pw.error || 'no test result reported' }
     else if (kind === 'static') r = (STATIC[testId] || STATIC[id])(workdir, FIXTURE)
     else if (kind === 'unit') {
-      const p = spawnSync(process.execPath, [path.join(VERIFY, 'unit', `${caseId}.mjs`), workdir], { encoding: 'utf8', timeout: 30_000 })
+      const p = spawnSync(process.execPath, [path.join(VERIFY, 'unit', `${caseId}.mjs`), workdir], { encoding: 'utf8', timeout: 30_000, env: safeEnv() })
       r = p.status === null ? { result: 'unevaluated', detail: 'unit test timed out' } : { result: p.status === 0 ? 'pass' : 'fail', detail: (p.stdout + p.stderr).trim().slice(0, 800) }
     } else if (kind === 'log_policy') r = logPolicy(workdir, log)
     else r = { result: 'unevaluated', detail: humanEvidence(testId, workdir, artifacts) }
