@@ -8,8 +8,8 @@
 ## 구현 현황 (PRD 25.1)
 | 단계 | 내용 | 상태 |
 |---|---|---|
-| 0 | 정답 기준 T01–T10 (`rubrics/`, `fixtures/react-demo`, 외부 검증기), 실행 프로필 | 완료. base는 실패, 참조해는 통과 (`benchmarks/ground-truth-matrix.json`). **루브릭 10개는 사람 승인 대기** |
-| 1 | 비교 실험 하네스 NO_SKILL / AUTO / FORCED + 토큰 원장 | 완료. `claude -p` 실측 스모크 테스트 통과(추정 $0.0036). 실제 비교 실험은 루브릭 승인 뒤 진행 |
+| 0 | 정답 기준 T01–T10 (`rubrics/`, `fixtures/react-demo`, 외부 검증기), 실행 프로필 | 완료. base는 실패, 참조해는 통과 (`benchmarks/ground-truth-matrix.json`). T01은 승인됨(v2), **T02–T10은 사람 승인 대기** |
+| 1 | 비교 실험 하네스 NO_SKILL / AUTO / FORCED + 토큰 원장 | 완료. **첫 실측 비교 실험 실행**: T01, NO_SKILL / AUTO / FORCED 모두 통과, 동률, 트리거 실패 + 효과 없음으로 분류 ([reports/experiment-T01-2026-11-20.md](reports/experiment-T01-2026-11-20.md)) |
 | 2 | Collector + Catalog + 정적 보안 검사 | 완료. 5개 수집원, 341개 스킬 (플러그인 251 / 단독 90, quarantined 82) |
 | 3 | Finder(FTS5) + Selector + NO_SKILL + 근거 리포트 + 사람 승인 | 완료 |
 | 4 | Selection Audit + 정책 비교 (labeled / holdout) | 완료. [reports/audit-2026-11-19.md](reports/audit-2026-11-19.md). sel-v2는 채택하지 않음 |
@@ -45,7 +45,7 @@ python -m lab runtime run --executor eval                           # OS 스케�
 2. **`flagged` 후보 검토:** 예를 들어 `webapp-testing`은 번들 `scripts/`가 있어 `flagged`다. 실험의 B/C 팔은 `WAITING_SECURITY_APPROVAL`이 되고, 검토한 뒤 `--i-reviewed-this-candidate`를 붙여야 실행된다.
 3. **실행 프로필:** 이 PC는 구독 로그인(S)이라 비용은 항상 *추정*이다. 평가 실험은 API 키(K)를 권장한다(PRD 26.1). 구독의 한도 초과 자동 과금(usage credits) 설정은 직접 꺼야 한다.
 4. **예산:** `config/budgets.yaml`의 USD 상한은 NO_SKILL 기준선을 실측한 뒤 채운다. 그 전에는 실행 횟수 상한(30회/야간)만 적용된다.
-5. **Claude 프로젝트 설정:** [docs/claude-settings.example.json](docs/claude-settings.example.json)을 `.claude/settings.json`으로 복사해 적용한다. 권한 규칙이라 자동으로 쓰지 않았다.
+5. **Claude 프로젝트 설정:** `.claude/settings.json`을 적용했다(사용자 승인).
 
 ## 구조
 | 경로 | 역할 (PRD 17.1) |
