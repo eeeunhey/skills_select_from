@@ -5,7 +5,7 @@ budgets:
   per_suite_max_usd: null       # -> claude plugin eval --max-cost-usd
   nightly_max_usd: null
   daily_max_usd: null
-  nightly_max_agent_runs: 30    # profile S guard (initial assumption)
+  nightly_max_agent_runs: 100   # profile S guard. Raised 30->100 on 2026-11-20: eunhye approved the 10x3x3 (90 runs) campaign
   soft_limit_ratio: 0.8
   hard_limit_ratio: 1.0
   smoke_test_max_usd: 0.5       # cap for the one-off harness smoke test
