@@ -26,19 +26,26 @@ function offenders(page, where) {
   }, where)
 }
 
+// Measure buttons at rest: no hover, no focus, no running transition (token-based :hover/:focus states are allowed).
+async function atRest(page) {
+  await page.mouse.move(0, 0)
+  await page.evaluate(() => document.activeElement?.blur())
+  await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' })
+}
+
 test('T04-R2 all rendered buttons use button design tokens', async ({ page }) => {
   await open(page)
   const bad = []
   for (const screen of SCREENS) {
     await nav(page, screen)
-    await page.mouse.move(0, 0) // measure at rest: a token-based :hover style is allowed
+    await atRest(page)
     bad.push(...(await offenders(page, screen)))
     await shot(page, screen)
   }
   await nav(page, 'Home')
   await page.getByRole('main').getByRole('button', { name: 'Help', exact: true }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
-  await page.mouse.move(0, 0)
+  await atRest(page)
   await shot(page, 'Help modal')
   bad.push(...(await offenders(page, 'Help modal')))
   expect(bad).toEqual([])

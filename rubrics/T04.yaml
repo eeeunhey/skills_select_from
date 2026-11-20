@@ -32,7 +32,7 @@ requirements:
   mandatory: true
 - id: R2
   type: functional
-  condition: On Home, Sign up, Profile, Settings and the open Help dialog, every visible button's computed background, measured at rest (mouse moved away, not hovered), equals --color-primary, --color-secondary or --color-danger and its corner radius equals
+  condition: On Home, Sign up, Profile, Settings and the open Help dialog, every visible button's computed background, measured at rest (mouse moved away, nothing focused, transitions/animations disabled), equals --color-primary, --color-secondary or --color-danger and its corner radius equals
     --radius-md.
   verifier: T04-R2
   verifier_kind: external_test

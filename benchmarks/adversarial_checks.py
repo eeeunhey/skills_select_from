@@ -30,6 +30,12 @@ CASES = [
      {"R2": "fail"}, None),
     ("T04 --color-primary changed", "T04", "src/styles/tokens.css",
      "--color-primary: #1f6feb;", "--color-primary: #2a6df4;", {"S3": "fail"}, None),
+    # correct fix with a token-based hover + focus style and a transition: must not fail R2 (measured at rest)
+    ("T04 token hover/focus state with transition", "T04", "src/styles/app.css",
+     ".btn-secondary { background: var(--color-secondary); color: var(--color-secondary-text); border-color: var(--color-border); }",
+     ".btn-secondary { background: var(--color-secondary); color: var(--color-secondary-text); border-color: var(--color-border);"
+     " transition: background-color 400ms; }\n.btn-secondary:hover, .btn-secondary:focus { background: var(--color-secondary-hover); }",
+     {"R1": "pass", "R2": "pass", "S3": "pass"}, None),
     ("T06 relabel while pending", "T06", SIGNUP,
      "            Sign up\n", "            {submitting ? 'Signing up…' : 'Sign up'}\n",
      {"R1": "pass", "R2": "pass", "R3": "pass"}, "PASSED"),
