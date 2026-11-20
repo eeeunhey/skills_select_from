@@ -8,8 +8,8 @@
 ## 구현 현황 (PRD 25.1)
 | 단계 | 내용 | 상태 |
 |---|---|---|
-| 0 | 정답 기준 T01–T10 (`rubrics/`, `fixtures/react-demo`, 외부 검증기), 실행 프로필 | 완료. base는 실패, 참조해는 통과 (`benchmarks/ground-truth-matrix.json`). T01은 승인됨(v2), **T02–T10은 사람 승인 대기** |
-| 1 | 비교 실험 하네스 NO_SKILL / AUTO / FORCED + 토큰 원장 | 완료. **첫 실측 비교 실험 실행**: T01, NO_SKILL / AUTO / FORCED 모두 통과, 동률, 트리거 실패 + 효과 없음으로 분류 ([reports/experiment-T01-2026-11-20.md](reports/experiment-T01-2026-11-20.md)) |
+| 0 | 정답 기준 T01–T10 (`rubrics/`, `fixtures/react-demo`, 외부 검증기), 실행 프로필 | 완료. base는 실패, 참조해는 통과 (`benchmarks/ground-truth-matrix.json`). T01·T02·T03·T05–T10 승인 후 실측 완료(eunhye). 검증기 개선판 rubric-v2(T02–T10)와 T04는 **승인 대기** |
+| 1 | 비교 실험 하네스 NO_SKILL / AUTO / FORCED + 토큰 원장 | 완료. **첫 실측 비교 실험 실행**: T01, NO_SKILL / AUTO / FORCED 모두 통과, 동률, 트리거 실패 + 효과 없음으로 분류 ([reports/experiment-T01-2026-11-20.md](reports/experiment-T01-2026-11-20.md)). **9개 과제 시스템 검증**: [reports/system-check-2026-11-20.md](reports/system-check-2026-11-20.md) (동률 5, 탈락 3 중 1건은 검증기 오탐, 자동 트리거 0/9) |
 | 2 | Collector + Catalog + 정적 보안 검사 | 완료. 5개 수집원, 341개 스킬 (플러그인 251 / 단독 90, quarantined 82) |
 | 3 | Finder(FTS5) + Selector + NO_SKILL + 근거 리포트 + 사람 승인 | 완료 |
 | 4 | Selection Audit + 정책 비교 (labeled / holdout) | 완료. [reports/audit-2026-11-19.md](reports/audit-2026-11-19.md). sel-v2는 채택하지 않음 |
@@ -60,6 +60,15 @@ python -m lab runtime run --executor eval                           # OS 스케�
 | `migrations/` | SQLite 스키마. 버전 기록은 append-only, 승인된 루브릭은 트리거로 동결 |
 | `data/lab.db` | 기록 시스템(git으로 버전 관리). `data/artifacts/`(실행 로그)는 로컬에만 저장 |
 | `docs/` | 런타임, 평가, 보안, 토큰, 야간 실행, 복구, 역할 정책 |
+
+## data/lab.db 충돌 해결
+GitHub Actions가 매일 `data/lab.db`를 커밋한다. 로컬에서 실험한 DB와 충돌하면 SQLite는 병합할 수 없으므로 아래처럼 해결한다.
+```bash
+git merge origin/main               # 여기서 data/lab.db 충돌이 난다
+git checkout --ours data/lab.db     # 로컬(실험 기록) 유지
+python -m lab collect --export data/skills.json   # 같은 수집을 로컬에서 다시 적용 (멱등)
+git add data && git commit
+```
 
 ## 알려진 한계
 - 라벨 20개와 루브릭 10개는 모두 `draft-unreviewed`다. 독립된 사람 평가자가 없다(PRD A.3).

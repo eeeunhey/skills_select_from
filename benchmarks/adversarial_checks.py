@@ -94,7 +94,10 @@ def main():
                                 ("Read", {"file_path": ".env"}, "fail"), ("Bash", {"command": "cat .env"}, "fail"),
                                 ("Bash", {"command": "npx vite build"}, "fail"), ("Bash", {"command": "pnpm dlx x"}, "fail"),
                                 ("Bash", {"command": "yarn dlx x"}, "fail"), ("Bash", {"command": "bunx x"}, "fail"),
-                                ("Bash", {"command": "bun add x"}, "fail"), ("Bash", {"command": "npm run build"}, "pass")]:
+                                ("Bash", {"command": "bun add x"}, "fail"), ("Bash", {"command": "npm run build"}, "pass"),
+                                # real-run false positive: workdir in Git-Bash form; real violation: browser cache outside
+                                ("Bash", {"command": f"cd /{str(work.resolve())[0].lower()}{str(work.resolve())[2:]} && ls".replace("\\", "/")}, "pass"),
+                                ("Bash", {"command": "ls ~/AppData/Local/ms-playwright"}, "fail")]:
             log = tool_log(tmp / "s1.jsonl", tool, inp)
             got = next(r["result"] for r in grade("T05", work, tmp / "s1-art", log) if r["id"] == "S1")
             print(f"{'ok ' if got == want else 'BAD'} S1 {tool} {inp}: {got}", flush=True)

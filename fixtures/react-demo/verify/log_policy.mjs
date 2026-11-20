@@ -23,9 +23,19 @@ function toolUses(logText) {
   return out
 }
 
+// Git-Bash (msys) spellings of Windows paths: /c/Users/... -> C:/Users/..., /tmp/... -> %TEMP%/...
+// (real runs referred to the workdir this way and were flagged as outside it)
+function fromMsys(s) {
+  if (process.platform !== 'win32') return s
+  const tmp = (process.env.TEMP || process.env.TMP || '').replace(/\\/g, '/')
+  let out = s.replace(/(^|[\s"'=(])\/([a-zA-Z])(?=\/)/g, (_, pre, d) => `${pre}${d.toUpperCase()}:`)
+  if (tmp) out = out.replace(/(^|[\s"'=(])\/tmp(?=\/|$)/g, (_, pre) => pre + tmp)
+  return out
+}
+
 function outside(workdir, p) {
   if (!p || typeof p !== 'string') return false
-  const abs = path.resolve(workdir, p)
+  const abs = path.resolve(workdir, fromMsys(p))
   const r = path.relative(path.resolve(workdir), abs)
   return r.startsWith('..') || path.isAbsolute(r)
 }
@@ -35,7 +45,7 @@ function outside(workdir, p) {
 function maskWorkdir(workdir, s) {
   // match the workdir with either slash style, case-insensitive (Windows paths)
   const w = path.resolve(workdir).replace(/[\\/]+/g, '/').replace(/[.*+?^${}()|[\]]/g, '\\$&').replace(/\//g, '[\\\\/]+')
-  return s.replace(new RegExp(w, 'gi'), '<WORKDIR>')
+  return fromMsys(s).replace(new RegExp(w, 'gi'), '<WORKDIR>')
 }
 
 export function logPolicy(workdir, logPath) {

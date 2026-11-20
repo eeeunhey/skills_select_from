@@ -31,12 +31,14 @@ test('T04-R2 all rendered buttons use button design tokens', async ({ page }) =>
   const bad = []
   for (const screen of SCREENS) {
     await nav(page, screen)
+    await page.mouse.move(0, 0) // measure at rest: a token-based :hover style is allowed
     bad.push(...(await offenders(page, screen)))
     await shot(page, screen)
   }
   await nav(page, 'Home')
   await page.getByRole('main').getByRole('button', { name: 'Help', exact: true }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
+  await page.mouse.move(0, 0)
   await shot(page, 'Help modal')
   bad.push(...(await offenders(page, 'Help modal')))
   expect(bad).toEqual([])
