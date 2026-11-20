@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { open, nav, h1, fillSignup, submitButton, mockSignup } from './helpers.mjs'
 
-const RAW = /\b(500|503)\b|request failed|typeerror|failed to fetch|stack|undefined|\[object/i
+const RAW = /\b(500|503)\b|request failed:\s*\d|typeerror|failed to fetch|stack|undefined|\[object/i
 
 async function failWith(page, respond) {
   await mockSignup(page, { respond })

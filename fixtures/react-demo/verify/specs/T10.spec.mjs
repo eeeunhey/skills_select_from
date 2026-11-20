@@ -23,11 +23,12 @@ function captureConsole(page) {
 }
 
 async function signupFlow(page, respond) {
-  await mockSignup(page, { respond })
+  const calls = await mockSignup(page, { respond })
   await open(page)
   await nav(page, 'Sign up')
   await fillSignup(page, EMAIL, PASSWORD)
   await submitButton(page).click()
+  return calls
 }
 
 test('T10-R1 successful signup logs no email or password', async ({ page }) => {
@@ -40,11 +41,14 @@ test('T10-R1 successful signup logs no email or password', async ({ page }) => {
 
 test('T10-R2 failed signup (500 and network error) logs no email or password', async ({ page }) => {
   const leaks = captureConsole(page)
-  await signupFlow(page, (route) => route.fulfill({ status: 500, body: '' }))
+  const failed500 = await signupFlow(page, (route) => route.fulfill({ status: 500, body: '' }))
   await page.waitForTimeout(800)
   await page.unrouteAll()
-  await signupFlow(page, (route) => route.abort('failed'))
+  const failedNet = await signupFlow(page, (route) => route.abort('failed'))
   await page.waitForTimeout(800)
+  // both failure paths must actually have been exercised, else nothing was observed
+  expect(failed500.length, 'HTTP 500 request was not attempted').toBe(1)
+  expect(failedNet.length, 'network-failure request was not attempted').toBe(1)
   expect(await leaks()).toEqual([])
 })
 

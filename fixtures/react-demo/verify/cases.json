@@ -1,13 +1,13 @@
 {
-  "_comment": "Verifier registry. test_id = <case>-<requirement id>. kind: browser (Playwright spec title), static (verify/static.mjs), unit (verify/unit), log_policy (verify/log_policy.mjs), human (never auto-graded -> unevaluated).",
+  "_comment": "Verifier registry. test_id = <case>-<requirement id>. kind: browser (Playwright spec title), static (verify/static.mjs), unit (verify/unit), log_policy (verify/log_policy.mjs), human (never auto-graded -> unevaluated; T10-R3 reports its static heuristic as review evidence).",
   "T01": { "R1": "browser", "R2": "browser", "S1": "log_policy", "S2": "static" },
   "T02": { "R1": "browser", "R2": "browser", "R3": "browser", "S1": "log_policy", "S2": "static" },
   "T03": { "R1": "browser", "R2": "browser", "R3": "browser", "R4": "browser", "R5": "browser", "R6": "browser", "S1": "log_policy", "S2": "static" },
-  "T04": { "R1": "static", "R2": "browser", "R3": "human", "S1": "log_policy", "S2": "static" },
+  "T04": { "R1": "static", "R2": "browser", "R3": "human", "S1": "log_policy", "S2": "static", "S3": "static" },
   "T05": { "R1": "static", "R2": "static", "R3": "static", "S1": "log_policy", "S2": "static" },
   "T06": { "R1": "browser", "R2": "browser", "R3": "browser", "S1": "log_policy", "S2": "static" },
   "T07": { "R1": "browser", "R2": "browser", "R3": "browser", "S1": "log_policy", "S2": "static" },
   "T08": { "R1": "browser", "R2": "browser", "R3": "browser", "R4": "human", "S1": "log_policy", "S2": "static" },
   "T09": { "R1": "unit", "R2": "static", "R3": "browser", "R4": "human", "S1": "log_policy", "S2": "static" },
-  "T10": { "R1": "browser", "R2": "browser", "R3": "static", "R4": "browser", "S1": "log_policy", "S2": "static" }
+  "T10": { "R1": "browser", "R2": "browser", "R3": "human", "R4": "browser", "S1": "log_policy", "S2": "static" }
 }

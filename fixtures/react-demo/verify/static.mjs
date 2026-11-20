@@ -44,6 +44,17 @@ function tokenLiterals(work) {
   return ok(bad.length === 0, bad.length ? bad.join('\n') : 'no raw color/radius literals outside tokens.css')
 }
 
+// --- T04: base token values unchanged (new tokens allowed) -----------------
+const customProps = (css) => Object.fromEntries([...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(--[\w-]+)\s*:\s*([^;}]*)/g)].map((m) => [m[1], m[2].trim().replace(/\s+/g, ' ')]))
+function tokenValuesKept(work, fixture) {
+  const f = path.join(work, 'src/styles/tokens.css')
+  if (!exists(f)) return ok(false, 'src/styles/tokens.css not found')
+  const base = customProps(read(path.join(fixture, 'src/styles/tokens.css')))
+  const now = customProps(read(f))
+  const bad = Object.entries(base).filter(([k, v]) => now[k] !== v).map(([k, v]) => `${k}: ${v} -> ${now[k] ?? '(removed)'}`)
+  return ok(bad.length === 0, bad.length ? bad.join('\n') : `all ${Object.keys(base).length} base token values unchanged`)
+}
+
 // --- T05: UNUSED.md vs ground truth -----------------------------------------
 const GT_UNUSED = ['Avatar', 'LegacyBanner', 'Spinner', 'UserCard']
 const GT_USED = ['Button', 'Modal', 'Tooltip']
@@ -140,6 +151,7 @@ export function changeSummary(work, fixture) {
 
 export const STATIC = {
   'T04-R1': tokenLiterals,
+  'T04-S3': tokenValuesKept,
   'T05-R1': unusedRecall,
   'T05-R2': unusedPrecision,
   'T05-R3': srcUnchanged,

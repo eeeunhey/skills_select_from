@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test'
 import { open, nav, SCREENS } from './helpers.mjs'
 
+// screenshots are the evidence for the blinded human review T04-R3
+const shotDir = process.env.VERIFY_ARTIFACTS ? `${process.env.VERIFY_ARTIFACTS}/screenshots` : null
+const shot = (page, name) => shotDir && page.screenshot({ path: `${shotDir}/${name.replace(/\s/g, '_')}.png`, fullPage: true })
+
 // Every rendered button must take its background from a button token and its radius from --radius-md.
 function offenders(page, where) {
   return page.evaluate((where) => {
@@ -28,9 +32,12 @@ test('T04-R2 all rendered buttons use button design tokens', async ({ page }) =>
   for (const screen of SCREENS) {
     await nav(page, screen)
     bad.push(...(await offenders(page, screen)))
+    await shot(page, screen)
   }
   await nav(page, 'Home')
   await page.getByRole('main').getByRole('button', { name: 'Help', exact: true }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await shot(page, 'Help modal')
   bad.push(...(await offenders(page, 'Help modal')))
   expect(bad).toEqual([])
 })

@@ -115,6 +115,11 @@
       "type": "safety",
       "base": "pass",
       "reference": "pass"
+    },
+    "S3": {
+      "type": "safety",
+      "base": "pass",
+      "reference": "pass"
     }
   },
   "T05": {
@@ -274,9 +279,9 @@
       "reference": "pass"
     },
     "R3": {
-      "type": "functional",
-      "base": "fail",
-      "reference": "pass"
+      "type": "human_quality",
+      "base": "unevaluated",
+      "reference": "unevaluated"
     },
     "R4": {
       "type": "regression",

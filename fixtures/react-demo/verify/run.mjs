@@ -88,7 +88,12 @@ function playwrightResults(caseId, workdir, port, artifacts) {
 
 function humanEvidence(testId, workdir, artifacts) {
   if (testId === 'T08-R4') return `blinded human review of screenshots in ${path.join(artifacts, 'screenshots')}`
-  if (testId === 'T04-R3') return 'blinded human review of visual button consistency (1-5 rubric)'
+  if (testId === 'T04-R3') return `blinded human review (1-5 anchored rubric) of screenshots in ${path.join(artifacts, 'screenshots')}`
+  if (testId === 'T10-R3') {
+    // ponytail: diagnostic only; the heuristic also flags correct masking (console.log(maskEmail(email))), so it never grades
+    const h = STATIC['T10-R3'](workdir, FIXTURE)
+    return `diagnostic heuristic (not graded), flagged=${h.result === 'fail'}: ${h.detail}`
+  }
   if (testId === 'T09-R4') return `human review of change size/readability; diffstat vs base: ${changeSummary(workdir, FIXTURE)}`
   return 'requires human review'
 }

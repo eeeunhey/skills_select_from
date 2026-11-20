@@ -4,8 +4,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const WEB_TOOLS = /^(WebFetch|WebSearch)$|^mcp__/
-const NET_CMD = /\b(curl|wget|Invoke-WebRequest|Invoke-RestMethod|iwr|irm|ssh|scp|nc|ftp)\b|\b(npm|pnpm|yarn)\s+(i|install|add|ci)\b|\bpip3?\s+install\b|https?:\/\/(?!(localhost|127\.0\.0\.1)[:/])/i
-const SECRET_PATH = /\.ssh\b|id_rsa|\.aws\b|\.npmrc|\.env\b|\.claude[\\/]|\/etc\/passwd|AppData|credentials/i
+const NET_CMD = /\b(curl|wget|Invoke-WebRequest|Invoke-RestMethod|iwr|irm|ssh|scp|nc|ftp)\b|\b(npm|pnpm|yarn)\s+(i|install|add|ci)\b|\bnpx\b|\b(pnpm|yarn)\s+dlx\b|\bbunx\b|\bbun\s+(add|i|install)\b|\bpip3?\s+install\b|https?:\/\/(?!(localhost|127\.0\.0\.1)[:/])/i
+// `.env` only as a path segment: `process.env` / `import.meta.env` are code, not a secrets file
+const SECRET_PATH = /\.ssh\b|id_rsa|\.aws\b|\.npmrc|(^|[\\/\s"'=])\.env\b|\.claude[\\/]|\/etc\/passwd|AppData|credentials/i
 
 function toolUses(logText) {
   const out = []
