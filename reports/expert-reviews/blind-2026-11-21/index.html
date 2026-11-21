@@ -1,0 +1,503 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blind Review</title><style>:root{--bg:#fbfbfa;--fg:#1d1d1b;--muted:#6b6b66;--line:#e2e1dc;--card:#fff;--accent:#2f5d8a}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--fg:#ecebe6;--muted:#9c9b95;--line:#33332f;--card:#1f1f1d;--accent:#8fb3d9}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,'Malgun Gothic',sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 120px}h1{font-size:22px;margin:0 0 4px}
+.lead{color:var(--muted);margin:0 0 24px}.item{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 20px}
+.item h2{font-size:16px;margin:0 0 6px}.q{margin:0 0 12px}.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+figure{margin:0}figure img{width:100%;border:1px solid var(--line);border-radius:6px;cursor:zoom-in}figcaption{font-size:12px;color:var(--muted)}
+pre{overflow:auto;max-height:420px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;font-size:12.5px}
+.scale{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.scale label{border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;flex:1 1 160px;font-size:13px}
+.scale input{margin-right:6px}.scale label:has(input:checked){border-color:var(--accent);outline:1px solid var(--accent)}
+textarea{width:100%;box-sizing:border-box;margin-top:8px;min-height:44px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center}
+button{background:var(--accent);color:var(--bg);border:0;border-radius:6px;padding:9px 16px;font-weight:600;cursor:pointer}
+.d-add{color:#2e7d32}.d-del{color:#c62828}dialog{max-width:95vw;border:0;padding:0;background:transparent}dialog img{max-width:95vw;max-height:92vh}</style></head><body><main><h1>눈가림 평가</h1><p class="lead">각 항목은 서로 다른 실행 결과입니다. 어떤 조건(스킬 사용 여부)에서 나온 결과인지는 숨겨져 있습니다. 기준대로 1–5점을 고르고, 다 끝나면 아래 버튼으로 <b>blind-scores.json</b>을 저장하세요. 이미지를 누르면 확대됩니다.</p><section class="item" id="T04-01"><h2>T04-01</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/834faade879f.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/21128505ae20.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/c99b89fa1d6f.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/c9c34899535c.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/d20c946b4559.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-01" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-01" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-01" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-01" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-01" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-01" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-02"><h2>T08-02</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/0e2e2e9d8cf8.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/47e7c47b8e41.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/afa62806ad6b.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/78cdb97b233a.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/0afe9f501164.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/6cbad3e7dc50.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/2adadd6e6a42.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/91bee68412d5.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-02" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-02" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-02" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-02" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-02" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-02" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-03"><h2>T09-03</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,9 @@</span>
+<span class="d-add">+const PASSWORD_ERROR = &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+</span>
+<span class="d-add">+// Returns the error message for an invalid password, or null when it is valid.</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return PASSWORD_ERROR</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,10 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    // An empty new password means &quot;leave it unchanged&quot;, so only validate when one is entered.</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-03" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-03" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-03" value="3">3 — 보통</label><label><input type="radio" name="T09-03" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-03" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-03" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-04"><h2>T09-04</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,6 @@</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,9 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-04" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-04" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-04" value="3">3 — 보통</label><label><input type="radio" name="T09-04" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-04" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-04" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-05"><h2>T08-05</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/9dd839dba323.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/4c2fff0cdeb4.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/97a3b1f1460d.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/c012e2526011.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/2837c3e1bc3c.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/a29ac498cef4.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/3d2d9b982891.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/de49ef362ca9.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-05" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-05" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-05" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-05" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-05" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-05" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-06"><h2>T04-06</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/8fdeffa90b71.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/8dcdcea010a2.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/abd6182f2f5e.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/6d8b066e9fc3.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/c5604281ea3b.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-06" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-06" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-06" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-06" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-06" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-06" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-07"><h2>T04-07</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/f1e9d4466083.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/7803a307b922.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/258ecb665603.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/05aaec3832cd.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/7ccad885a15b.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-07" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-07" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-07" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-07" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-07" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-07" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-08"><h2>T04-08</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/77cc40bd5da1.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/f45c450084b1.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/829cfdb11bab.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/a91249a2b136.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/75edd95c36b5.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-08" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-08" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-08" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-08" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-08" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-08" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-09"><h2>T04-09</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/a174937b7e65.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/736fbd05fa79.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/4307ac738351.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/9555283d288d.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/aa85ab4b48a9.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-09" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-09" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-09" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-09" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-09" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-09" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-10"><h2>T08-10</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/eaff02973bda.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/279d08a22814.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/3f82c6ddcf68.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/eea8a596a897.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/5b419377946d.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/9c6ecedcb92f.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/22539dab2691.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/00b501f82c83.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-10" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-10" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-10" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-10" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-10" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-10" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-11"><h2>T08-11</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/b8ae06f613a4.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/170968569a77.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/d00d8e13e5a7.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/e3b776c728bb.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/afa395d74570.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/edddf7870a95.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/599ab79953df.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/46b754768317.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-11" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-11" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-11" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-11" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-11" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-11" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-12"><h2>T09-12</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,8 @@</span>
+<span class="d-add">+// Returns an error message for an invalid password, or null when it is valid.</span>
+<span class="d-add">+// Rule: at least 8 characters and at least one digit.</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,10 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    // An empty new password means &quot;keep the current one&quot;, so it is not validated.</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-12" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-12" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-12" value="3">3 — 보통</label><label><input type="radio" name="T09-12" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-12" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-12" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-13"><h2>T04-13</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/60e494547194.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/79c962a90f41.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/8674d20b974c.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/12f00dd76572.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/5a4a92c0306e.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-13" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-13" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-13" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-13" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-13" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-13" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-14"><h2>T08-14</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/4da27fdacb34.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/11e1c173d2dc.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/f0de34160295.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/c7f950778249.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/fc932a30c0d2.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/0c61df7718a3.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/a02a2246ec65.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/dea47bf7f56e.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-14" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-14" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-14" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-14" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-14" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-14" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-15"><h2>T09-15</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,7 @@</span>
+<span class="d-add">+// Returns an error message if the password is invalid, or null if it is valid.</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,9 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-15" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-15" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-15" value="3">3 — 보통</label><label><input type="radio" name="T09-15" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-15" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-15" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-16"><h2>T04-16</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/12a8c08326a8.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/31c69f1482fa.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/c95d72cc3316.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/b3c54b187697.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/1a051f66a50f.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-16" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-16" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-16" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-16" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-16" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-16" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-17"><h2>T09-17</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,6 @@</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,9 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-17" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-17" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-17" value="3">3 — 보통</label><label><input type="radio" name="T09-17" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-17" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-17" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-18"><h2>T08-18</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/7d6d2d5187cd.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/14bdc82a5f3b.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/3e408056593d.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/87c4ad67bdd2.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/9332b44b7fad.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/0f9c60b41763.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/8ed7b96d1b8e.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/11e3d08d686f.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-18" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-18" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-18" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-18" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-18" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-18" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-19"><h2>T08-19</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/40f57db12452.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/788686500250.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/5d4042515e2d.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/9f3ddb0ec380.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/af2289efe1e8.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/9350303d6fe6.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/2e268aef28dd.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/0177a9270b91.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-19" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-19" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-19" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-19" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-19" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-19" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-20"><h2>T08-20</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/ae16a2ad4fbc.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/7a57aade2742.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/0dd0c31af211.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/c88066a6ca73.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/fa24384fb23d.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/560b9fd922e7.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/03efb9805cc3.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/ad83410c15bf.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-20" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-20" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-20" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-20" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-20" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-20" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-21"><h2>T09-21</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,8 @@</span>
+<span class="d-add">+// Returns an error message if the password is invalid, or null if it is valid.</span>
+<span class="d-add">+// Rule: at least 8 characters and at least one digit.</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,9 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-21" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-21" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-21" value="3">3 — 보통</label><label><input type="radio" name="T09-21" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-21" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-21" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-22"><h2>T04-22</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/9d876202f84f.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/449964f2f6b4.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/0c1875d77dbd.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/b3fa914a4fe4.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/196958521925.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-22" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-22" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-22" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-22" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-22" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-22" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-23"><h2>T09-23</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,9 @@</span>
+<span class="d-add">+const PASSWORD_ERROR = &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+</span>
+<span class="d-add">+// Returns the error message for an invalid password, or null when it is valid.</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return PASSWORD_ERROR</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,10 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    // An empty new password means &quot;keep the current one&quot;, so only validate when something was typed.</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-23" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-23" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-23" value="3">3 — 보통</label><label><input type="radio" name="T09-23" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-23" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-23" placeholder="메모 (선택)"></textarea></section><section class="item" id="T04-24"><h2>T04-24</h2><p class="q">버튼 스타일이 화면들 사이에서 얼마나 일관적인가?</p><div class="shots"><figure><img loading="lazy" src="img/5428d14767ad.png" alt="Help modal"><figcaption>Help modal</figcaption></figure><figure><img loading="lazy" src="img/29e91ae87ecd.png" alt="Home"><figcaption>Home</figcaption></figure><figure><img loading="lazy" src="img/93d61a476539.png" alt="Profile"><figcaption>Profile</figcaption></figure><figure><img loading="lazy" src="img/aff9073bf210.png" alt="Settings"><figcaption>Settings</figcaption></figure><figure><img loading="lazy" src="img/3352036c4903.png" alt="Sign up"><figcaption>Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T04-24" value="1">1 — 버튼이 화면마다 눈에 띄게 다름(같은 역할인데 색·모양·크기 다름)</label><label><input type="radio" name="T04-24" value="2">2 — 불일치 버튼 여러 개</label><label><input type="radio" name="T04-24" value="3">3 — 눈에 띄는 예외 1개</label><label><input type="radio" name="T04-24" value="4">4 — 사소한 차이만(간격 등)</label><label><input type="radio" name="T04-24" value="5">5 — 같은 역할 버튼의 스타일이 화면 간 구분 불가</label></div><textarea data-note="T04-24" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-25"><h2>T09-25</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,9 @@</span>
+<span class="d-add">+export const PASSWORD_ERROR = &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+</span>
+<span class="d-add">+// Returns the error message for an invalid password, or null when it is valid.</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return PASSWORD_ERROR</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,10 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    // An empty new password means &quot;keep the current one&quot;, so it is not validated.</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-25" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-25" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-25" value="3">3 — 보통</label><label><input type="radio" name="T09-25" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-25" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-25" placeholder="메모 (선택)"></textarea></section><section class="item" id="T08-26"><h2>T08-26</h2><p class="q">375px(모바일)과 1280px(데스크톱)에서 읽기 쉽고 깨짐이 없는가?</p><div class="shots"><figure><img loading="lazy" src="img/bf0bbc0e8b88.png" alt="1280-Home"><figcaption>1280-Home</figcaption></figure><figure><img loading="lazy" src="img/6fdc239d9d55.png" alt="1280-Profile"><figcaption>1280-Profile</figcaption></figure><figure><img loading="lazy" src="img/97330b7e938f.png" alt="1280-Settings"><figcaption>1280-Settings</figcaption></figure><figure><img loading="lazy" src="img/2ff9721184da.png" alt="1280-Sign up"><figcaption>1280-Sign up</figcaption></figure><figure><img loading="lazy" src="img/7b1a3aea9e9e.png" alt="375-Home"><figcaption>375-Home</figcaption></figure><figure><img loading="lazy" src="img/743017efb11c.png" alt="375-Profile"><figcaption>375-Profile</figcaption></figure><figure><img loading="lazy" src="img/6308ac36ab33.png" alt="375-Settings"><figcaption>375-Settings</figcaption></figure><figure><img loading="lazy" src="img/0166825bcda3.png" alt="375-Sign up"><figcaption>375-Sign up</figcaption></figure></div><div class="scale"><label><input type="radio" name="T08-26" value="1">1 — 375px에서 내용이 깨지거나 읽을 수 없음</label><label><input type="radio" name="T08-26" value="2">2 — 여러 곳이 겹치거나 잘림</label><label><input type="radio" name="T08-26" value="3">3 — 한 곳이 눈에 띄게 어색함</label><label><input type="radio" name="T08-26" value="4">4 — 사소한 어색함만</label><label><input type="radio" name="T08-26" value="5">5 — 두 폭 모두 깔끔하게 읽힘</label></div><textarea data-note="T08-26" placeholder="메모 (선택)"></textarea></section><section class="item" id="T09-27"><h2>T09-27</h2><p class="q">중복 검증 로직을 하나로 합친 변경이 작고 읽기 쉬운가?</p><pre><span class="d-del">--- base/src/lib/validation.js</span>
+<span class="d-add">+++ changed/src/lib/validation.js</span>
+<span class="">@@ -0,0 +1,9 @@</span>
+<span class="d-add">+const PASSWORD_ERROR = &#x27;Password must be at least 8 characters and include a number.&#x27;</span>
+<span class="d-add">+</span>
+<span class="d-add">+// Returns the error message for an invalid password, or null when it is valid.</span>
+<span class="d-add">+export function validatePassword(password) {</span>
+<span class="d-add">+  if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-add">+    return PASSWORD_ERROR</span>
+<span class="d-add">+  }</span>
+<span class="d-add">+  return null</span>
+<span class="d-add">+}</span>
+<span class="d-del">--- base/src/screens/Profile.jsx</span>
+<span class="d-add">+++ changed/src/screens/Profile.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import Tooltip from &#x27;../components/Tooltip.jsx&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Profile() {</span>
+<span class="">   const [name, setName] = useState(&#x27;Jane Doe&#x27;)</span>
+<span class="">@@ -10,8 +11,10 @@</span>
+<span class="">   function save(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="">     setSaved(false)</span>
+<span class="d-del">-    if (newPassword &amp;&amp; (newPassword.length &lt; 8 || !/[0-9]/.test(newPassword))) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    // An empty new password means &quot;keep the current one&quot;, so only validate when something was typed.</span>
+<span class="d-add">+    const passwordError = newPassword ? validatePassword(newPassword) : null</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+<span class="d-del">--- base/src/screens/Signup.jsx</span>
+<span class="d-add">+++ changed/src/screens/Signup.jsx</span>
+<span class="">@@ -1,5 +1,6 @@</span>
+<span class=""> import { useState } from &#x27;react&#x27;</span>
+<span class=""> import { signup } from &#x27;../api.js&#x27;</span>
+<span class="d-add">+import { validatePassword } from &#x27;../lib/validation.js&#x27;</span>
+<span class=""> </span>
+<span class=""> export default function Signup({ go }) {</span>
+<span class="">   const [email, setEmail] = useState(&#x27;&#x27;)</span>
+<span class="">@@ -8,8 +9,9 @@</span>
+<span class=""> </span>
+<span class="">   async function handleSubmit(e) {</span>
+<span class="">     e.preventDefault()</span>
+<span class="d-del">-    if (password.length &lt; 8 || !/\d/.test(password)) {</span>
+<span class="d-del">-      setError(&#x27;Password must be at least 8 characters and include a number.&#x27;)</span>
+<span class="d-add">+    const passwordError = validatePassword(password)</span>
+<span class="d-add">+    if (passwordError) {</span>
+<span class="d-add">+      setError(passwordError)</span>
+<span class="">       return</span>
+<span class="">     }</span>
+<span class="">     setError(null)</span>
+</pre><div class="scale"><label><input type="radio" name="T09-27" value="1">1 — 불필요한 변경이 많고 읽기 어려움</label><label><input type="radio" name="T09-27" value="2">2 — 변경이 과하거나 혼란스러움</label><label><input type="radio" name="T09-27" value="3">3 — 보통</label><label><input type="radio" name="T09-27" value="4">4 — 작고 읽기 쉬움, 사소한 군더더기</label><label><input type="radio" name="T09-27" value="5">5 — 최소한의 변경으로 명확하게 하나로 합침</label></div><textarea data-note="T09-27" placeholder="메모 (선택)"></textarea></section></main><div class="bar"><span id="cnt"></span><button id="dl">점수 저장 (JSON)</button></div><dialog id="z"><img alt=""></dialog><script>const ids=[...document.querySelectorAll('section.item')].map(s=>s.id);
+function collect(){const o={};for(const id of ids){const c=document.querySelector(`input[name="${id}"]:checked`);
+const n=document.querySelector(`textarea[data-note="${id}"]`).value.trim();if(c||n)o[id]={score:c?+c.value:null,note:n}}return o}
+function upd(){const n=Object.values(collect()).filter(x=>x.score).length;document.getElementById('cnt').textContent=`${n}/${ids.length} 채점`}
+document.addEventListener('change',upd);
+document.getElementById('dl').onclick=()=>{const b=new Blob([JSON.stringify(collect(),null,1)],{type:'application/json'});
+const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='blind-scores.json';a.click()};
+const dlg=document.getElementById('z');document.addEventListener('click',e=>{if(e.target.matches('figure img')){dlg.querySelector('img').src=e.target.src;dlg.showModal()}});
+dlg.onclick=()=>dlg.close();upd();</script></body></html>

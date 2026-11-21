@@ -7,3 +7,4 @@ node_modules/
 candidates/
 data/*.db-shm
 data/*.db-wal
+data/blind-keys/
