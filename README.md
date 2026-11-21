@@ -8,8 +8,8 @@
 ## 구현 현황 (PRD 25.1)
 | 단계 | 내용 | 상태 |
 |---|---|---|
-| 0 | 정답 기준 T01–T10 (`rubrics/`, `fixtures/react-demo`, 외부 검증기), 실행 프로필 | 완료. base는 실패, 참조해는 통과 (`benchmarks/ground-truth-matrix.json`). T01·T02·T03·T05–T10 승인 후 실측 완료(eunhye). 검증기 개선판 rubric-v2(T02–T10)와 T04는 **승인 대기** |
-| 1 | 비교 실험 하네스 NO_SKILL / AUTO / FORCED + 토큰 원장 | 완료. **첫 실측 비교 실험 실행**: T01, NO_SKILL / AUTO / FORCED 모두 통과, 동률, 트리거 실패 + 효과 없음으로 분류 ([reports/experiment-T01-2026-11-20.md](reports/experiment-T01-2026-11-20.md)). **9개 과제 시스템 검증**: [reports/system-check-2026-11-20.md](reports/system-check-2026-11-20.md) (동률 5, 탈락 3 중 1건은 검증기 오탐, 자동 트리거 0/9) |
+| 0 | 정답 기준 T01–T10 (`rubrics/`, `fixtures/react-demo`, 외부 검증기), 실행 프로필 | 완료. base는 실패, 참조해는 통과 (`benchmarks/ground-truth-matrix.json`). 10개 모두 승인(eunhye) |
+| 1 | 비교 실험 하네스 NO_SKILL / AUTO / FORCED + 토큰 원장 | 완료. **첫 실측 비교 실험 실행**: T01, NO_SKILL / AUTO / FORCED 모두 통과, 동률, 트리거 실패 + 효과 없음으로 분류 ([reports/experiment-T01-2026-11-20.md](reports/experiment-T01-2026-11-20.md)). **9개 과제 시스템 검증**: [reports/system-check-2026-11-20.md](reports/system-check-2026-11-20.md) (동률 5, 탈락 3 중 1건은 검증기 오탐, 자동 트리거 0/9). **10과제 × 3회(90회)**: [reports/direction-check-2026-11-21.md](reports/direction-check-2026-11-21.md). 기능 90/90 통과, 자동 트리거 0/30, 실패는 모두 S1. 완료 판정은 [reports/definition-of-done-2026-11-20.md](reports/definition-of-done-2026-11-20.md) |
 | 2 | Collector + Catalog + 정적 보안 검사 | 완료. 5개 수집원, 341개 스킬 (플러그인 251 / 단독 90, quarantined 82) |
 | 3 | Finder(FTS5) + Selector + NO_SKILL + 근거 리포트 + 사람 승인 | 완료 |
 | 4 | Selection Audit + 정책 비교 (labeled / holdout) | 완료. [reports/audit-2026-11-19.md](reports/audit-2026-11-19.md). sel-v2는 채택하지 않음 |
